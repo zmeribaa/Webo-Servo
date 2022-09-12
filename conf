@@ -1,0 +1,29 @@
+[web]
+listen:80;
+server_name:127.0.0.1,127.0.1.1;
+max_size:124k;
+404:404.html;
+{/location}
+default:index.html;
+cgi:php,php_cgi;
+directory_listing:true;
+accepted:GET,POST;
+path:/tmp/www;
+redirection:WTF IS THIS;
+upload_store:/tmp/uploads;
+{/location2,/location3}
+default:index.html;
+cgi:php,php_cgi;
+directory_listing:true;
+accepted:GET,POST;
+path:/tmp/www;
+redirection:WTF IS THIS;
+upload_store:/tmp/uploads;
+{route}
+redirection:301, https://www.google.com;
+[static]
+listen:90;
+server_name:127.0.0.1;
+[Meow]
+listen:80;
+server_name:127.0.0.1;
