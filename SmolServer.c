@@ -6,54 +6,73 @@
 /*   By: zmeribaa <zmeribaa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/12 15:36:16 by zmeribaa          #+#    #+#             */
-/*   Updated: 2022/09/12 18:53:47 by zmeribaa         ###   ########.fr       */
+/*   Updated: 2022/09/15 16:31:44 by zmeribaa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "SmolServer.h"
 
-int main(int ac, char **av)
+
+// Server side C program to demonstrate HTTP Server programming
+int main(int argc, char const *argv[])
 {
-	const int PORT = 8080;
-	int server_fd;
-	char *hello;
-	char buffer[1024] = {0};
-	long valread;
-	int new_socket;
-	struct sockaddr_in server_addr;
+    int server_fd, new_socket; long valread;
+    struct sockaddr_in address;
+    int addrlen = sizeof(address);
+	int opt = 1;
+	char *hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 7\n\n3ankoub";
 	
-	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+    
+    // Creating socket file descriptor
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+    {
+        perror("In socket");
+        exit(EXIT_FAILURE);
+    }
+    
+
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons( PORT );
+    
+    memset(address.sin_zero, '\0', sizeof address.sin_zero);
+    
+	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
 	{
-		perror( "socket failed" );
+		perror("Sockopt error");
 		exit(EXIT_FAILURE);
 	}
-	memset((char *)&server_addr, 0, sizeof(server_addr));
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons(PORT);
-	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	if (bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
+	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) < 0)
 	{
-		perror( "bind failed" );
+		perror("Sockopt error");
 		exit(EXIT_FAILURE);
 	}
-	if (listen(server_fd, 3) < 0)
-	{
-		perror( "In Listen" );
-		exit(EXIT_FAILURE);
-	}
-	if ((new_socket = accept(server_fd, (struct sockaddr *)&server_addr,(socklen_t *)&server_addr)) < 0)
-	{
-		perror( "In Accept" );
-		exit(EXIT_FAILURE);
-	}
-	valread = read(new_socket, buffer, 1024);
-	printf("%s\n", buffer);
-	if (valread < 0)
-	{
-		printf("No Bytes are there to read");
-	}
-	hello = "Hello from the server";
-	write(new_socket, hello, strlen(hello));
-	close(new_socket);
-	return 0;
+			 
+    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address))<0)
+    {
+        perror("In bind");
+        exit(EXIT_FAILURE);
+    }
+    if (listen(server_fd, 10) < 0)
+    {
+        perror("In listen");
+        exit(EXIT_FAILURE);
+    }
+    while(1)
+    {
+        printf("\n+++++++ Waiting for new connection ++++++++\n\n");
+        if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
+        {
+            perror("In accept");
+            exit(EXIT_FAILURE);
+        }
+        
+        char buffer[30000] = {0};
+        valread = read( new_socket , buffer, 30000);
+        printf("%s\n",buffer );
+        write(new_socket , hello , strlen(hello));
+        printf("------------------Hello message sent-------------------");
+        close(new_socket);
+    }
+    return 0;
 }

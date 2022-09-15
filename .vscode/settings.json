@@ -2,6 +2,8 @@
 	"C_Cpp.errorSquiggles": "Disabled",
 	"files.associations": {
 		"memory": "cpp",
-		"ostream": "c"
+		"ostream": "c",
+		"stdlib.h": "c",
+		"socket.h": "c"
 	}
 }
