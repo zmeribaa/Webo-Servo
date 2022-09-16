@@ -27,12 +27,20 @@ void Config::attach(const Server server)
 
 void Config::debug()
 {
+
     std::cout << "List of parsed servers and their config" << std::endl;
     std::cout << "__________________________________________________" << std::endl;
 
     std::vector<Server>::iterator ptr;
     for (ptr = servers.begin(); ptr != servers.end(); ptr++)
+    {
         ptr->debug();
+    }
+
+    std::cout << "First server test" << std::endl;
+    std::cout << "__________________________________________________" << std::endl;
+    servers[0].lessgo();
+    
 }
 
 void Config::save_location(Server *server, std::istream &config_file_stream, std::string line)

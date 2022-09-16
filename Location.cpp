@@ -23,7 +23,6 @@ void Location::setPath(std::string path)
     _path = path; 
 }
 
-
 std::vector<std::string> split(std::string string, char delimiter)
 {
     std::size_t found = string.find(delimiter);
@@ -32,7 +31,7 @@ std::vector<std::string> split(std::string string, char delimiter)
     {
 
         pairs.push_back(string.substr(0, found));
-        pairs.push_back(string.substr(found + 1));
+        pairs.push_back(string.substr(found + 1, string.length() - found - 2));
     }
     return pairs;
 }
