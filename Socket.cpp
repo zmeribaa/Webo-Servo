@@ -1,39 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   SmolServer.c                                       :+:      :+:    :+:   */
+/*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zmeribaa <zmeribaa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/12 15:36:16 by zmeribaa          #+#    #+#             */
-/*   Updated: 2022/09/15 16:31:44 by zmeribaa         ###   ########.fr       */
+/*   Updated: 2022/09/16 21:15:52 by zmeribaa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "SmolServer.h"
-
+#include "Socket.hpp"
 
 // Server side C program to demonstrate HTTP Server programming
-int main(int argc, char const *argv[])
+Socket::Socket(void)
 {
     int server_fd, new_socket; long valread;
     struct sockaddr_in address;
     int addrlen = sizeof(address);
 	int opt = 1;
 	char *hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 7\n\n3ankoub";
-	
-    
+
     // Creating socket file descriptor
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
     {
         perror("In socket");
         exit(EXIT_FAILURE);
     }
-    
-
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons( PORT );
+    address.sin_port = htons(PORT);
     
     memset(address.sin_zero, '\0', sizeof address.sin_zero);
     
@@ -74,5 +70,12 @@ int main(int argc, char const *argv[])
         printf("------------------Hello message sent-------------------");
         close(new_socket);
     }
-    return 0;
+}
+
+Socket::~Socket(){}
+
+int main(int argc, char const *argv[])
+{
+	Socket *socket = new Socket();
+	return 0;
 }
