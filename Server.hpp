@@ -13,6 +13,11 @@
 #include <arpa/inet.h>
 #define PORT 9000
 
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include <string>
+
 #include "Location.hpp"
 
 // Create Server class with all nginx configuration parameters
