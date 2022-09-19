@@ -26,11 +26,11 @@ Request::Request(std::string rt)
     pos = line.find(' ', prev);
     keys["path"] = line.substr(prev, pos - prev);
     prev = pos + 1;
-
+	
     pos = line.find(' ', prev);
     keys["vers"] = line.substr(prev);
 
-    std::cout << "Received a <<" << keys["reqtype"] << ">> request, to path <<" << keys["path"] << ">> on http version <<" << keys["vers"] << ">>" << std::endl;
+    std::cout << "Received a <<" << keys["reqtype"] << ">> 	request, to path <<" << keys["path"] << ">> on http version <<" << keys["vers"] << ">>" << std::endl;
     
     //std::cout << "Request body <<" << keys["body"] << ">>" << std::endl;
 

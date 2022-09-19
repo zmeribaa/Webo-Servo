@@ -86,6 +86,7 @@ void Server::lessgo()
     while(1)
     {
         printf("\n+++++++ Waiting for new connection ++++++++\n\n");
+		
         if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
         {
             perror("In accept");
@@ -93,12 +94,12 @@ void Server::lessgo()
         }
         
         char buffer[30000] = {0};
-        valread = read( new_socket , buffer, 30000);
+        valread = recv( new_socket , buffer, 30000,0);
 
         std::string rt(buffer);
         Request request(rt);
 
-        write(new_socket , hello.c_str() , hello.length());
+        send(new_socket , hello.c_str() , hello.length(),0);
 
         close(new_socket);
     }
