@@ -10,12 +10,14 @@ Request::Request(std::string rt)
     std::stringstream to_stream(rt);
 
     std::string line;
-
     std::getline(to_stream, line);
     line.resize(line.size() - 1);
 
     std::string::size_type pos = 0;
     std::string::size_type prev = 0;
+
+    if ((pos = rt.find("\r\n\r\n")) != std::string::npos) // has body check
+        keys["body"] = rt.substr(pos + 4);
 
     pos = line.find(' ', prev);
     keys["reqtype"] = line.substr(0, pos - prev);
@@ -30,19 +32,7 @@ Request::Request(std::string rt)
 
     std::cout << "Received a <<" << keys["reqtype"] << ">> request, to path <<" << keys["path"] << ">> on http version <<" << keys["vers"] << ">>" << std::endl;
     
-
-    // To reuse later for debugging
-    /*write(new_socket , hello.c_str() , hello.length());
-    
-    write(new_socket , "Received request type: ", strlen("Received request type: "));
-    write(new_socket , reqtype.c_str() , reqtype.length());
-
-    write(new_socket , "</br>path: ", strlen("</br>path: "));
-    write(new_socket , path.c_str() , path.length());
-    
-    write(new_socket , "</br>Version: ", strlen("</br>Version: "));
-    write(new_socket , vers.c_str() , vers.length());*/
-
+    //std::cout << "Request body <<" << keys["body"] << ">>" << std::endl;
 
     while (std::getline(to_stream, line))
     {
@@ -50,10 +40,57 @@ Request::Request(std::string rt)
         pos = line.find(':');
         if (pos != -1)
         {
-            std::cout << line.substr(0, pos) << " :: " << line.substr(pos + 2) << std::endl; 
+            //std::cout << line.substr(0, pos) << " :: " << line.substr(pos + 2) << std::endl; 
             keys[line.substr(0, pos)] = line.substr(pos + 2);
         }
     }
+
+    if (keys["Transfer-Encoding"].find("chunked") != std::string::npos)
+    {
+        std::cout << "Shit this body is chunked" << std::endl;
+        std::string decoded_body;
+        int length = 0;
+        unsigned long chunk_size = strtol(keys["body"].c_str(), NULL, 16);
+        while (chunk_size > 0)
+        {
+            length = keys["body"].find("\r\n", length) + 2;
+            decoded_body += keys["body"].substr(length, chunk_size);
+            length += chunk_size + 2;
+            keys["body"] = keys["body"][length];
+            chunk_size = strtol(keys["body"].c_str(), NULL, 16);
+        }
+        keys["body"] = decoded_body;
+        keys["Transfer-Encoding"] = "";
+        keys["Content-Length"] = length; // Later check if this is the right content size
+    }
+
+    std::cout << "Request body unchunked << " << keys["body"] << ">>" << std::endl;
+
+    // Todo check if body is chunked
+
+/*
+    RFC pseudo code
+
+    length := 0
+    read chunk-size, chunk-ext (if any), and CRLF
+    while (chunk-size > 0) {
+        read chunk-data and CRLF
+        append chunk-data to decoded-body
+        length := length + chunk-size
+        read chunk-size, chunk-ext (if any), and CRLF
+    }
+    read trailer field
+    while (trailer field is not empty) {
+    if (trailer field is allowed to be sent in a trailer) {
+         append trailer field to existing header fields
+    }
+        read trailer-field
+    }
+    Content-Length := length
+    Remove "chunked" from Transfer-Encoding
+    Remove Trailer from existing header fields
+*/
+
     //std::cout << "We've got a Request" << std::endl;
 }
 
