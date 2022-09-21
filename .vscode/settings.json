@@ -4,6 +4,8 @@
 		"memory": "cpp",
 		"ostream": "c",
 		"stdlib.h": "c",
-		"socket.h": "c"
+		"socket.h": "c",
+		"string": "cpp",
+		"fstream": "cpp"
 	}
 }

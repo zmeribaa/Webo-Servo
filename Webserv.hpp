@@ -6,7 +6,7 @@
 /*   By: zmeribaa <zmeribaa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/17 14:25:14 by zmeribaa          #+#    #+#             */
-/*   Updated: 2022/09/17 14:26:27 by zmeribaa         ###   ########.fr       */
+/*   Updated: 2022/09/21 19:42:39 by zmeribaa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,3 +26,7 @@
 #include <fstream>
 #include <sys/stat.h>
 #include <fcntl.h>
+
+
+
+# define MAX_FDS 1024
