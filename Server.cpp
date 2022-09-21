@@ -146,6 +146,7 @@ void Server::lessgo()
 				if (i == server_fd)
 				{
 					std::cout << "Socket is readable" << std::endl;
+					new_fd = 0;
 					while(new_fd != -1)
 					{
 						new_fd = accept(server_fd, NULL, NULL);
@@ -170,12 +171,13 @@ void Server::lessgo()
 						ret = recv(i, buffer, sizeof(buffer), 0);
 						if (ret < 0)
 						{
-							if (errno != EWOULDBLOCK)
-							{
-								perror("recv() failed");
-								close_conn = TRUE;
-							}
-							break;
+							// if (errno != EWOULDBLOCK)
+							// {
+							// 	perror("recv() failed");
+							// 	close_conn = TRUE;
+							// }
+							// break;
+
 						}
 						if (ret == 0)
 						{
@@ -184,14 +186,8 @@ void Server::lessgo()
 							break;
 						}
 						len = ret;
-						ret = send(i, buffer, len, 0);
-						if (ret < 0)
-						{
-							perror("send() failed");
-							close_conn = TRUE;
-							break;
-						}
 					}
+					
 					if (close_conn)
 					{
 						close(i);
@@ -203,6 +199,18 @@ void Server::lessgo()
 						}
 					}
 				}
+			}
+			else if (FD_ISSET(i, &write_fds)) {
+
+					// if set to write 
+					// write to socket
+					// ret = send(i, buffer, len, 0);
+					// if (ret < 0)
+					// // {
+					// // 	perror("send() failed");
+					// // 	close_conn = TRUE;
+					// // 	break;
+					// // }
 			}
 		}
 // //			select call; select(max_fds, read_fds, write_fds, NULL, NULL);
