@@ -12,74 +12,39 @@
 
 #include "Response.hpp"
 
-Response::Response(void) {
-	return ;
+Response::Response(void)
+{
 }
 
-Response::~Response(void) {
-	return ;
+Response::Response(std::string version, std::string code, std::string phrase)
+{
+	keys["version"] = version;
+	keys["code"] = code;
+	keys["phrase"] = phrase;
 }
 
-void Response::setHeaders(std::string headers) {
-	this->_Headers = headers;
+Response::~Response(void)
+{
+
 }
 
-void Response::setBody(std::string body) {
-	this->_Body = body;	
+void Response::appendHeader(std::string header)
+{
+	keys["headers"] += header + "\r\n";
 }
 
-void Response::setStatus(std::string status) {
-	this->_Status = status;
+void Response::addBody(std::string body)
+{
+	keys["body"] = body;
 }
 
-void Response::setVersion(std::string version) {
-	this->_Version = version;
-}
 
-void Response::setContentType(std::string contentType) {
-	this->_ContentType = contentType;
-}
+std::string Response::build()
+{
+	std::string status_line = keys["version"] + " " + keys["code"] + " " + keys["phrase"];
 
-void Response::setContentLength(std::string contentLength) {
-	this->_ContentLength = contentLength;
-}
-
-void Response::setDate(std::string date) {
-	this->_Date = date;
-}
-
-void Response::setServer(std::string server) {
-	this->_Server = server;
-}
-
-std::string Response::getHeaders(void) {
-	return this->_Headers;
-}
-
-std::string Response::getBody(void) {
-	return this->_Body;
-}
-
-std::string Response::getStatus(void) {
-	return this->_Status;
-}
-
-std::string Response::getVersion(void) {
-	return this->_Version;
-}
-
-std::string Response::getContentType(void) {
-	return this->_ContentType;
-}
-
-std::string Response::getContentLength(void) {
-	return this->_ContentLength;
-}
-
-std::string Response::getDate(void) {
-	return this->_Date;
-}
-
-std::string Response::getServer(void) {
-	return this->_Server;
+	res = status_line +  "\r\n" + keys["headers"];
+	if (keys.find("body") != keys.end())
+		res += "\r\n" + keys["body"];
+	return (res);
 }

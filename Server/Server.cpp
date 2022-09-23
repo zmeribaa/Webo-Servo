@@ -2,7 +2,7 @@
 
 #include "../Server/Server.hpp"
 #include "../Request/Request.hpp"
-
+#include "../Response/Response.hpp"
 
 Server::Server()
 {
@@ -12,7 +12,16 @@ Server::Server()
 
 void Server::run()
 {
-	std::string hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 7\n\n3ankoub";
+	Response response("HTTP/1.1", "200", "OK");
+
+	std::ifstream t("ErrorPages/index.html");
+	std::stringstream _buffer;
+	_buffer << t.rdbuf();
+	response.appendHeader("Content-Length: " + std::to_string(_buffer.str().length()));
+	response.appendHeader("Content-Type: text/html");
+	response.addBody(_buffer.str());
+	std::string hello = response.build();
+
 	int ret;
 	int new_fd;
 	char buffer[30000] = {0};

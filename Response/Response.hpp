@@ -13,33 +13,14 @@
 #include "../Webserv/Webserv.hpp"
 
 class Response {
-	private:
-		std::string _Headers;
-		std::string _Body;
-		std::string _Status;
-		std::string _Version;
-		std::string _ContentType;
-		std::string _ContentLength;
-		std::string _Date;
-		std::string _Server;
-		
 	public:
 		Response(void);
+		Response(std::string version, std::string code, std::string phrase);
 		~Response(void);
-		void setHeaders(std::string);
-		void setBody(std::string);
-		void setStatus(std::string);
-		void setVersion(std::string);
-		void setContentType(std::string);
-		void setContentLength(std::string);
-		void setDate(std::string);
-		void setServer(std::string);
-		std::string getHeaders(void);
-		std::string getBody(void);
-		std::string getStatus(void);
-		std::string getVersion(void);
-		std::string getContentType(void);
-		std::string getContentLength(void);
-		std::string getDate(void);
-		std::string getServer(void);
+		void appendHeader(std::string header);
+		void addBody(std::string body);
+		std::string build();
+	private:
+        std::unordered_map<std::string, std::string> keys;
+		std::string res;
 };
