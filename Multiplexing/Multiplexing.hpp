@@ -1,32 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Webserv.hpp                                        :+:      :+:    :+:   */
+/*   Multiplexing.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zmeribaa <zmeribaa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/09/17 14:25:14 by zmeribaa          #+#    #+#             */
-/*   Updated: 2022/09/21 19:42:39 by zmeribaa         ###   ########.fr       */
+/*   Created: 2022/09/21 23:31:43 by zmeribaa          #+#    #+#             */
+/*   Updated: 2022/09/21 23:37:40 by zmeribaa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include <stdio.h>
-#include <sys/socket.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <string.h>
-#include <arpa/inet.h>
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <map>
-#include <fstream>
-#include <sys/stat.h>
-#include <fcntl.h>
+#include "../Webserv/Webserv.hpp"
 
+class Multiplexing {
 
-
-# define MAX_FDS 1024
+	public:
+		Multiplexing(void);
+		~Multiplexing(void);
+		void addfdtoselect(int fd, fd_set *fds);
+		void runselect(fd_set *read_fds, fd_set *write_fd);
+	private:
+		int max_fds;
+		fd_set read_fds;
+		fd_set write_fds;
+};

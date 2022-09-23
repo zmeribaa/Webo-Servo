@@ -1,6 +1,6 @@
-#include "Config.hpp"
-#include "Location.hpp"
-#include "Server.hpp"
+#include "Webserv.hpp"
+#include "../Location/Location.hpp"
+#include "../Server/Server.hpp"
 // Server belongs to Webserv
 // Locations belong to Server
 
@@ -20,12 +20,12 @@ void createServer()
     // Attach server to Webserve
 }
 
-void Config::attach(const Server server)
+void Webserv::attach(const Server server)
 {
     servers.push_back(server);
 }
 
-void Config::debug()
+void Webserv::debug()
 {
 
     std::cout << "List of parsed servers and their config" << std::endl;
@@ -39,11 +39,10 @@ void Config::debug()
 
     std::cout << "First server test" << std::endl;
     std::cout << "__________________________________________________" << std::endl;
-    servers[0].lessgo();
     
 }
 
-void Config::save_location(Server *server, std::istream &config_file_stream, std::string line)
+void Webserv::save_location(Server *server, std::istream &config_file_stream, std::string line)
 {
     Location *location = new Location();
     location->setPath(line);
@@ -74,7 +73,7 @@ void Config::save_location(Server *server, std::istream &config_file_stream, std
 
 }
 
-void Config::save_server(std::istream &config_file_stream, std::string line)
+void Webserv::save_server(std::istream &config_file_stream, std::string line)
 {
     Server *server = new Server();
     server->setName(line);
@@ -100,7 +99,7 @@ void Config::save_server(std::istream &config_file_stream, std::string line)
     }
 }
 
-Config::Config(std::string config_file): config_file(config_file)
+Webserv::Webserv(std::string config_file): config_file(config_file)
 {
     std::ifstream config_file_stream(config_file);
     if (!config_file_stream.is_open())
@@ -114,9 +113,46 @@ Config::Config(std::string config_file): config_file(config_file)
         if ((pos = line.find("[")) != std::string::npos && line.find("]", pos + 1) != std::string::npos)
             save_server(config_file_stream, line);
     }
+    for (int i = 0; i < servers.size(); i++)
+    {
+        std::cout << "Creating socker for server " << i << std::endl;
+        servers[i]._socket();
+    }
+    run();
 }
 
-Config::~Config()
+Webserv::~Webserv()
 {
 
+}
+
+void Webserv::run()
+{
+    while (1)
+    {
+        for (int i = 0; i < servers.size(); i++)
+        {
+            servers[i].run();
+        }
+    }
+}
+
+int main(int argc, char **argv)
+{
+    if (argc != 2)
+    {
+        std::cout << "Usage: ./Webserv [config_file]" << std::endl;
+        return 1;
+    }
+    try
+    {
+        Webserv webserv((std::string(argv[1])));
+        webserv.debug();
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << std::endl;
+        return 1;
+    }
+    return 0;
 }

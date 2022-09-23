@@ -7,7 +7,7 @@
 #include <vector>
 #include <string>
 
-#include "Location.hpp"
+#include "../Location/Location.hpp"
 
 // Create Request class with all nginx configuration parameters
 

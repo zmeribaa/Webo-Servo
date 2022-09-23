@@ -10,16 +10,16 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Webserv.hpp"
+#include "../Webserv/Webserv.hpp"
 
 class Response {
 	private:
 		std::string _Headers;
 		std::string _Body;
-		// std::string _Status;
-		// std::string _Version;
-		// std::string _ContentType;
-		// std::string _ContentLength;
+		std::string _Status;
+		std::string _Version;
+		std::string _ContentType;
+		std::string _ContentLength;
 		std::string _Date;
 		std::string _Server;
 		

@@ -24,6 +24,7 @@ void	Multiplexing::runselect(fd_set *read_fds, fd_set *write_fds) {
 	int		ret;
 	int		fd;
 	int		i;
+	char buf[1024];
 
 	ret = select(max_fds, read_fds, write_fds, NULL, NULL);
 	if (ret == -1) {
