@@ -57,7 +57,18 @@ void Server::run()
 				}
 				else
 				{
-					ret =  send(i , hello.c_str(), hello.length(), 0);
+					char buffer[30000] = {0};
+        			int valread = recv(new_fd , buffer, 30000,0);
+
+					// Too ugly, to refactor later
+
+       				std::string rt(buffer);
+        			Request request(rt);
+					Response response(request);
+
+					std::string res = response.build();
+
+					ret =  send(i , res.c_str(), res.length(), 0);
 					close_conn = TRUE;
 					if (close_conn)
 					{

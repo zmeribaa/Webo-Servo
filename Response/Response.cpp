@@ -23,6 +23,20 @@ Response::Response(std::string version, std::string code, std::string phrase)
 	keys["phrase"] = phrase;
 }
 
+Response::Response(Request request)
+{
+	// Shitton of logic to have here
+	keys["version"] = "HTTP/1.1";
+	keys["code"] = "200";
+	keys["phrase"] = "OK";
+
+	keys["body"] = "<h1>Received a " + request.getKey("reqtype") + " request, to path " + request.getKey("path") + " on http version " +  request.getKey("vers") + "</h1>";
+
+	appendHeader("Content-Length: " + std::to_string(keys["body"].length()));
+	appendHeader("Content-Type: text/html");
+}
+
+
 Response::~Response(void)
 {
 

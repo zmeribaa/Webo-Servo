@@ -11,10 +11,12 @@
 /* ************************************************************************** */
 
 #include "../Webserv/Webserv.hpp"
+#include "../Request/Request.hpp"
 
 class Response {
 	public:
 		Response(void);
+		Response(Request request);
 		Response(std::string version, std::string code, std::string phrase);
 		~Response(void);
 		void appendHeader(std::string header);

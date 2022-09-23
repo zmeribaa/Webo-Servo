@@ -16,6 +16,7 @@ class Request {
         Request();
         Request(std::string line);
         void debug();
+        std::string getKey(std::string key);
         //~Request();
     private:
         std::unordered_map<std::string, std::string> keys;

@@ -67,6 +67,10 @@ Request::Request(std::string rt)
     std::cout << "Request body unchunked << " << keys["body"] << ">>" << std::endl;
 }
 
+std::string Request::getKey(std::string key)
+{
+    return (keys[key]);
+}
 
 
 void Request::debug()
