@@ -6,7 +6,7 @@
 /*   By: zmeribaa <zmeribaa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/12 15:36:16 by zmeribaa          #+#    #+#             */
-/*   Updated: 2022/09/23 15:39:42 by zmeribaa         ###   ########.fr       */
+/*   Updated: 2022/09/23 17:15:35 by zmeribaa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ Socket::Socket(void)
         exit(EXIT_FAILURE);
     }
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_addr.s_addr = inet_addr("10.12.2.2") /*INADDR_ANY*/;
     address.sin_port = htons(PORT);
     
     memset(address.sin_zero, '\0', sizeof address.sin_zero);
@@ -77,9 +77,10 @@ Socket::Socket(void)
 	timeout.tv_sec  = 1;
 	timeout.tv_usec = 0;
 	fcntl(server_fd, F_SETFL, O_NONBLOCK);
-	FD_SET(server_fd, &backup_read);//loop over all servers not just one 
+	FD_SET(server_fd, &backup_read);//loop over all servers not just one
     while(1)
     {
+		// char *header = strdup("HTTP/1.1 200 OK\ncontent-type: video/mp4\r\n\n");
         // printf("\n+++++++ Waiting for new connection ++++++++\n\n");
 		read_fds = backup_read;
 		write_fds = backup_write;
@@ -104,6 +105,30 @@ Socket::Socket(void)
 			{
 				//fd_ready -= 1;
 				//
+				// if (socker is server (passive socket))
+			/*	{
+					fd =	accept socket server
+					fd.type = connection_socket			
+				}
+				if ( fd is connection_socket)
+				{
+					read from it
+				}
+				if (fd is conection and read done)
+				{
+					unset frim reading set
+					adding writting
+				}
+				if ( fd is connection writting ready)
+				{
+					writting in it 
+				}
+				if (fd is done )
+
+
+
+
+			*/				
 				if (i == server_fd)
 				{
 					// std::cout << "Socket is readable" << std::endl;
@@ -113,17 +138,34 @@ Socket::Socket(void)
 					{
 						
 						//break;
+						fcntl(new_fd, F_SETFL, O_NONBLOCK);
 						FD_SET(new_fd, &backup_read);
-						fcntl(server_fd, F_SETFL, O_NONBLOCK);
 					}
-					new_fd = -1;
+					//new_fd = -1;
 					// if (new_fd > max_fds)
 					// 	max_fds = new_fd;
 				}
 				else
 				{
-					ret = read( i , buffer, 30000);//recv(i, buffer, sizeof(buffer), 0);
-					// std::cout << "RECV_RET : " << i << "|" << ret << std::endl;
+					ret =  send(i , hello.c_str(), hello.length(), 0);//send(i, hello.c_str(), hello.length(), 0);
+					// ret = write(i, header, strlen(header));
+					// int fdhxh = open("/Users/zmeribaa/goinfre/h.mp4",O_RDWR);
+					// if (fdhxh < 0)
+					// {
+					// 	perror("Miae");
+					// 	exit(0);
+					// }
+					// char buffer[30];
+					// while (read(fdhxh, &buffer, 30))
+					// {
+					// 	std::cout << "Hello \n" << std::endl;
+					// 	write(i, buffer, 30);
+					// }
+					/*close (i);
+					FD_CLR(i, &backup_read);
+					FD_CLR(i, &backup_write);*/
+					/*ret = read( i , buffer, 30000);//recv(i, buffer, sizeof(buffer), 0);
+					 std::cout << "buffer : " << buffer << "|" << ret << std::endl;
 					if (ret < 0)
 					{
 						std::cout << "__BREAAAKINI__" << std::endl;
@@ -135,8 +177,9 @@ Socket::Socket(void)
 						std::cout << "RECV_RET : " << i << "|" << ret << std::endl;
 						FD_CLR(i, &backup_read);
 						FD_SET(i, &backup_write);
-					}
-					
+					}*/
+					// add your request code here
+					close_conn = TRUE;
 					//len = ret;
 					if (close_conn)
 					{
