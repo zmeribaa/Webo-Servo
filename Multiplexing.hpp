@@ -1,33 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Socket.hpp                                         :+:      :+:    :+:   */
+/*   Multiplexing.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zmeribaa <zmeribaa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/09/12 15:37:33 by zmeribaa          #+#    #+#             */
-/*   Updated: 2022/09/22 21:38:03 by zmeribaa         ###   ########.fr       */
+/*   Created: 2022/09/21 23:31:43 by zmeribaa          #+#    #+#             */
+/*   Updated: 2022/09/21 23:37:40 by zmeribaa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include <stdio.h>
-#include <sys/socket.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <string.h>
-#include <arpa/inet.h>
-#include <sys/select.h>
-#include <iostream>
-#include <string>
-#define PORT 9000
-#define FALSE 0
-#define TRUE 1
+#include "Weboserv.hpp"
 
-class Socket {
-public:
-	Socket(void);
-	~Socket(void);
+class Multiplexing {
+
+	public:
+		Multiplexing(void);
+		~Multiplexing(void);
+		void addfdtoselect(int fd, fd_set *fds);
+		void runselect(fd_set *read_fds, fd_set *write_fd);
+	private:
+		int max_fds;
+		fd_set read_fds;
+		fd_set write_fds;
 };

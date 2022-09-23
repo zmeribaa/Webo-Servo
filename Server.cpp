@@ -200,18 +200,25 @@ void Server::lessgo()
 					}
 				}
 			}
-			else if (FD_ISSET(i, &write_fds)) {
-
-					// if set to write 
-					// write to socket
-					// ret = send(i, buffer, len, 0);
-					// if (ret < 0)
-					// // {
-					// // 	perror("send() failed");
-					// // 	close_conn = TRUE;
-					// // 	break;
-					// // }
-			}
+			else if (FD_ISSET(i, &write_fds)) 
+			{
+				std::cout << "Socket is writable" << std::endl;
+				ret = send(i, hello.c_str(), hello.length(), 0);
+				if (ret < 0)
+				{
+					perror("send() failed");
+					close_conn = TRUE;
+				}
+				if (close_conn)
+				{
+					close(i);
+					FD_CLR(i, &write_fds);
+					if (i == max_fds)
+					{
+						while(FD_ISSET(max_fds, &write_fds) == FALSE)
+							max_fds -= 1;
+					}
+				}
 		}
 // //			select call; select(max_fds, read_fds, write_fds, NULL, NULL);
 
@@ -227,39 +234,40 @@ void Server::lessgo()
 // 	//					i is a client socket => write response
 // //				
 	}
-		for (i = 0; i <= max_fds; ++i)
-		{
-			if (FD_ISSET(i, &read_fds))
-				close(i);
-		}
-        if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
-        {
-            perror("In accept");
-            exit(EXIT_FAILURE);
-        }
-		// set socket as non blocking
-		// fcntl(new_socket, F_SETFL, O_NONBLOCK);
+	// 	for (i = 0; i <= max_fds; ++i)
+	// 	{
+	// 		if (FD_ISSET(i, &read_fds))
+	// 			close(i);
+	// 	}
+    //     if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
+    //     {
+    //         perror("In accept");
+    //         exit(EXIT_FAILURE);
+    //     }
+	// 	// set socket as non blocking
+	// 	// fcntl(new_socket, F_SETFL, O_NONBLOCK);
         
-        valread = recv( new_socket , buffer, 30000,0);
+    //     valread = recv( new_socket , buffer, 30000,0);
 
-        std::string rt(buffer);
-        Request request(rt);
+    //     std::string rt(buffer);
+    //     Request request(rt);
 
-        send(new_socket , hello.c_str() , hello.length(),0);
+    //     send(new_socket , hello.c_str() , hello.length(),0);
 
-        close(new_socket);
-    }
-
-void Server::setName(std::string name)
-{
-    _name = name; 
+    //     close(new_socket);
+    // }
 }
-
-
-void Server::attach(const Location location)
-{
-    locations.push_back(location);
 }
+// void Server::setName(std::string name)
+// {
+//     _name = name; 
+// }
+
+
+// void Server::attach(const Location location)
+// {
+//     locations.push_back(location);
+// }
 
 int main()
 {
