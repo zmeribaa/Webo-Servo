@@ -3,7 +3,7 @@ listen:9001;
 server_name:127.0.0.1;
 max_size:124k;
 404:404.html;
-{/}
+{/ll}
 default:index.html;
 cgi:php,php_cgi;
 directory_listing:true;
@@ -11,12 +11,12 @@ accepted:GET,POST;
 path:/Users/ayoubtabout/Desktop/Webo-Servo/static_html;
 redirection:WTF IS THIS;
 upload_store:/tmp/uploads;
-{/location2,/location3}
+{/}
 default:index.html;
 cgi:php,php_cgi;
 directory_listing:true;
 accepted:GET,POST;
-path:/tmp/www;
+path:/Users/ayoubtabout/Desktop/Webo-Servo/static_html;
 redirection:WTF IS THIS;
 upload_store:/tmp/uploads;
 {route}

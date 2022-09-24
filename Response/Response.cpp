@@ -150,9 +150,11 @@ Response::Response(Request request, Server server)
 	}
 	else
 	{
-		std::string full_path = location->getKey("path") + request.getKey("path").substr(location->getPath().length()); // This shit is ugly return this from findLocation later
-		if (full_path.back() != '/')
-			full_path += "/";
+		std::string full_path;
+		if (location->getKey("path").back() == '/')
+			full_path = location->getKey("path") + request.getKey("path").substr(location->getPath().length()); // This shit is ugly return this from findLocation later
+		else
+			full_path = location->getKey("path") + "/" + request.getKey("path").substr(location->getPath().length()); // This shit is ugly return this from findLocation later
 		std::cout << "Full constructed path is: " << full_path << std::endl;
 		struct stat s;
 		if (stat(full_path.c_str(), &s) != 0)
