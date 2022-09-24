@@ -16,6 +16,7 @@ class Request {
         Request();
         Request(std::string line);
         void debug();
+        std::string htmlHeaders();
         std::string getKey(std::string key);
         //~Request();
     private:

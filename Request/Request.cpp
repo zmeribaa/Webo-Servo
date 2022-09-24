@@ -72,6 +72,21 @@ std::string Request::getKey(std::string key)
     return (keys[key]);
 }
 
+// Return a string of headers to print out on an HTML page
+std::string Request::htmlHeaders()
+{
+    std::string string = "<ul>";
+
+    std::unordered_map<std::string, std::string>::iterator it = keys.begin();
+
+    while(it != keys.end())
+    {
+        string += "<li><b>" + it->first + "</b>: " + it->second + "</li>";
+        it++;
+    }
+    string += "</ul>";
+    return (string);
+}
 
 void Request::debug()
 {

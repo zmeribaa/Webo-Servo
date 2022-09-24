@@ -31,7 +31,9 @@ Response::Response(Request request)
 	keys["phrase"] = "OK";
 
 	keys["body"] = "<h1>Received a " + request.getKey("reqtype") + " request, to path " + request.getKey("path") + " on http version " +  request.getKey("vers") + "</h1>";
+	keys["body"] += request.htmlHeaders();
 
+	
 	appendHeader("Content-Length: " + std::to_string(keys["body"].length()));
 	appendHeader("Content-Type: text/html");
 }
