@@ -28,8 +28,8 @@ void Server::run()
     int i;
 	int close_conn = FALSE;
 	struct timeval	timeout;
-	timeout.tv_sec  = 1;
-	timeout.tv_usec = 0;
+	timeout.tv_sec  = 0;
+	timeout.tv_usec = 10000;
 	int addrlen = sizeof(address);
 
 		read_fds = backup_read;
@@ -64,7 +64,7 @@ void Server::run()
 
        				std::string rt(buffer);
         			Request request(rt);
-					Response response(request);
+					Response response(request, *this);
 
 					std::string res = response.build();
 
@@ -185,4 +185,16 @@ void Server::setName(std::string name)
 void Server::attach(const Location location)
 {
    locations.push_back(location);
+}
+
+Location *Server::findLocation(std::string path)
+{
+	std::vector<Location>::iterator ptr;
+    for (ptr = locations.begin(); ptr != locations.end(); ++ptr)
+	{
+		std::cout << "Trying to find if " << path << " Belongs to location " << ptr->getPath() << std::endl;
+		if (path.find(ptr->getPath().c_str(), 0, ptr->getPath().length()) != std::string::npos)
+			return &(*ptr);
+	}
+	return NULL;
 }

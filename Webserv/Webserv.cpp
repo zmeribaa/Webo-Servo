@@ -1,6 +1,18 @@
 #include "Webserv.hpp"
 #include "../Location/Location.hpp"
 #include "../Server/Server.hpp"
+
+
+/*
+
+
+TODO CHANGE ALL MAPS TO MULTIMAPS
+
+
+*/
+
+
+
 // Server belongs to Webserv
 // Locations belong to Server
 
@@ -45,6 +57,9 @@ void Webserv::debug()
 void Webserv::save_location(Server *server, std::istream &config_file_stream, std::string line)
 {
     Location *location = new Location();
+    line.erase(0, 1);
+    line.resize(line.size() - 1);
+
     location->setPath(line);
     int         pos;
 

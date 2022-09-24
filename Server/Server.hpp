@@ -45,6 +45,7 @@ class Server {
         void run();
         void _socket();
         void setName(std::string name);
+        Location *findLocation(std::string path);
     private:
         std::unordered_map<std::string, std::string> keys;
         std::string _name;

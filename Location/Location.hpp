@@ -13,6 +13,8 @@ class Location {
         bool attach(std::string pair);
         void debug();
         void setPath(std::string path);
+        std::string getKey(std::string key);
+        std::string getPath();
     private:
         std::unordered_map<std::string, std::string> keys;
         std::string _path;

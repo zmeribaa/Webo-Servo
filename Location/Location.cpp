@@ -23,13 +23,17 @@ void Location::setPath(std::string path)
     _path = path; 
 }
 
+std::string Location::getPath()
+{
+    return _path;
+}
+
 std::vector<std::string> split(std::string string, char delimiter)
 {
     std::size_t found = string.find(delimiter);
     std::vector<std::string> pairs;
     if (found != std::string::npos)
     {
-
         pairs.push_back(string.substr(0, found));
         pairs.push_back(string.substr(found + 1, string.length() - found - 2));
     }
@@ -46,3 +50,7 @@ bool Location::attach(std::string pair)
     return 1;
 }
 
+std::string Location::getKey(std::string key)
+{
+    return (keys[key]);
+}
