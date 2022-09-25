@@ -59,10 +59,11 @@ void Server::run()
 				{
 					char buffer[30000] = {0};
         			int valread = recv(new_fd , buffer, 30000,0);
-
+					
 					// Too ugly, to refactor later
-
-       				std::string rt(buffer);
+					if (valread > 0)
+       				{
+						std::string rt(buffer);
         			Request request(rt);
 					Response response(request, *this);
 
@@ -75,6 +76,7 @@ void Server::run()
 						close(i);
 						FD_CLR(i, &backup_read);
 						close_conn = FALSE;
+					}
 					}
 				}
 			}

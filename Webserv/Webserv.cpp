@@ -146,9 +146,7 @@ void Webserv::run()
     while (1)
     {
         for (int i = 0; i < servers.size(); i++)
-        {
             servers[i].run();
-        }
     }
 }
 
