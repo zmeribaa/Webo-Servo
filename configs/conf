@@ -8,7 +8,7 @@ default:index.html;
 cgi:php,php_cgi;
 directory_listing:true;
 accepted:GET,POST;
-path:/Users/ayoubtabout/Desktop/Webo-Servo/static_html;
+path:/Users/zmeribaa/Desktop/Webo-Servo/static_html;
 redirection:WTF IS THIS;
 upload_store:/tmp/uploads;
 {/}
@@ -16,7 +16,7 @@ default:index.html;
 cgi:php,php_cgi;
 directory_listing:true;
 accepted:GET,POST;
-path:/Users/ayoubtabout/Desktop/Webo-Servo/static_html;
+path:/Users/zmeribaa/Desktop/Webo-Servo/static_html;
 redirection:WTF IS THIS;
 upload_store:/tmp/uploads;
 {route}
