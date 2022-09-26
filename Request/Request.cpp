@@ -63,14 +63,6 @@ Request::Request(std::string rt)
         keys["Transfer-Encoding"] = "";
         keys["Content-Length"] = length; // Later check if this is the right content size
     }
-	pos = keys["path"].find("?");
-	if (pos != std::string::npos)
-	{
-		keys["url"] = keys["path"].substr(0, pos);
-		keys["query"] = keys["path"].substr(pos + 1, keys["path"].size() - 1);
-	}
-	else
-		keys["url"] = keys["path"];
     std::cout << "Request body unchunked << " << keys["body"] << ">>" << std::endl;
 }
 

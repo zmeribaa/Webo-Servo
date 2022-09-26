@@ -113,74 +113,115 @@ Response::Response(std::string version, std::string code, std::string phrase)
     keys["phrase"] = phrase;
 }
 
-// A draft response construtor. needs refactoring
 
+// Path: /test/meow.php?wewe=meow
 
-std::string Response::fullPathBuilder(Request request, Location location)
+void Response::fullPathBuilder(std::string url, Location location)
 {
+    std::string::size_type pos;
+    std::string full_path;
+
+    pos = url.find("?");
+	if (pos != std::string::npos)
+	{
+		keys["full_file_path"] = url.substr(0, pos);
+		keys["query"] = url.substr(pos + 1, url.length() - 1);
+	}
+	else
+		keys["full_file_path"] = url;
+
     if (location.getKey("path").back() == '/')
-       return (location.getKey("path") + request.getKey("path").substr(location.getPath().length())); // This shit is ugly return this from findLocation later
+      keys["full_file_path"] = location.getKey("path") + keys["full_file_path"].substr(location.getPath().length()); // This shit is ugly return this from findLocation later
     else
-        return (location.getKey("path") + "/" + request.getKey("path").substr(location.getPath().length())); // This shit is ugly return this from findLocation later
+        keys["full_file_path"] = location.getKey("path") + "/" + keys["full_file_path"].substr(location.getPath().length()); // This shit is ugly return this from findLocation later
+
+    struct stat s;
+    if (stat(keys["full_file_path"].c_str(), &s) != 0)
+        keys["code"] = "404";
+    else
+    {
+        if (s.st_mode & S_IFDIR)
+        {
+            keys["is_directory"] = "true";
+            std::string index = location.getKey("default").empty() ? location.getKey("default") : "index.html";
+            if (keys["full_file_path"].back() == '/')
+                keys["full_file_path"] += index;
+            else
+                keys["full_file_path"] += "/" + index;
+            if (stat(keys["full_file_path"].c_str(), &s) != 0)
+            {
+                if (location.getKey("directory_listing") == "true")
+                    keys["full_file_path"] = "auto_index.html"; //To handle later
+                else
+                    keys["code"] = "403";
+            }
+                
+        }
+    }
+}
+
+
+
+// Goal for path /trololo/filename.php
+void Response::setMetaData(Request request, Server server)
+{
+    Location *location = server.findLocation(request.getKey("path"));
+    if (location == NULL)
+        keys["code"] = "404";
+    else
+    {
+        fullPathBuilder(request.getKey("path"), *location);
+        if (keys["code"].empty())
+        {
+
+            std::string::size_type pos;
+            pos = keys["full_file_path"].find_last_of(".");
+            if (pos != std::string::npos && pos != keys["full_file_path"].length())
+            {
+                keys["extension"] = keys["full_file_path"].substr(pos);
+                std::string cgi = location->getKey("cgi");
+                std::cout << "extension " << keys["extension"] << std::endl;
+
+                if ((pos = cgi.find(",")) != std::string::npos)
+                {
+                    std::string cgi_extension = cgi.substr(0, pos);
+                    std::cout << "CGI extension is " << cgi_extension << std::endl;
+                    if (keys["extension"] == cgi_extension)
+                        keys["cgi_path"] = cgi.substr(pos + 1);
+                }
+            }
+        }
+    }
 }
 
 Response::Response(Request request, Server server)
 {
     setContentTypes();
-    Location *location = server.findLocation(request.getKey("path"));
 
-    if (location == NULL)
-        buildError("404");
-    else
+
+    if (request.getKey("reqtype") == "GET")
     {
-        std::string full_path = fullPathBuilder(request, *location);
-        std::cout << "Full constructed path is: " << full_path << std::endl;
-        struct stat s;
-        if (stat(full_path.c_str(), &s) != 0)
-            buildError("404");
+        setMetaData(request, server);
+        if (!(keys["code"].empty()))
+        {
+            buildError(keys["code"]);
+        }
+        else if (!(keys["cgi_path"].empty()))
+        {
+            // Handle CGI shit here
+        }
         else
         {
-            if (s.st_mode & S_IFDIR)
-            {
-                int auto_index = 0;
-                if (auto_index == 1)
-                {
-                    // Show autoindex
-                }
-                else
-                {
-                    if (full_path.back() == '/')
-                        full_path += "index.html";
-                    else
-                        full_path += "/index.html";
-                    if (stat(full_path.c_str(), &s) == 0)
-                    {
-                        int has_cgi = 0;
-                        if (has_cgi == 1)
-                        {
-                            // CGI SHIT happens in here
-                        }
-                        else
-                            serveStaticContent(full_path);
-                    }   
-                    else
-                        buildError("404");
-                }
-                }
-                else
-                {
-                    int has_cgi = 0;
-                    if (has_cgi == 1)
-                    {
-                        // CGI SHIT happens in here
-                    }
-                    else
-                        serveStaticContent(full_path);
-                }
-                    
-            }
-    }
+            serveStaticContent(keys["full_file_path"]);
+        }
+    } // GET request
+    /*else if (request.getKey("reqtype") == "POST")
+        // POST
+    else if (request.getKey("reqtype") == "POST")
+        // DELETE*/
 }
+
+
 
 Response::~Response(void)
 {
@@ -189,17 +230,15 @@ Response::~Response(void)
 void Response::buildError(std::string error_type)
 {
     // To improve later
-    if (error_type == "404")
-    {
+
         keys["version"] = "HTTP/1.1";
-        keys["code"] = "404";
+        keys["code"] = error_type;
         keys["phrase"] = "Not found";
 
         keys["body"] = "<h1> Shit is 404 </h1>";
 
         appendHeader("Content-Length: " + std::to_string(keys["body"].length()));
         appendHeader("Content-Type: text/html");
-    }
 }
 
 void Response::serveStaticContent(std::string full_path)

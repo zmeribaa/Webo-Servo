@@ -26,7 +26,8 @@ class Response {
 		std::string build();
 		void serveStaticContent(std::string full_path);
 		void buildError(std::string error_type);
-		std::string fullPathBuilder(Request request, Location location);
+		void fullPathBuilder(std::string url, Location location);
+		void setMetaData(Request request, Server server);
 	private:
         std::unordered_map<std::string, std::string> keys;
 		std::unordered_map<std::string, std::string> content_type;

@@ -5,18 +5,18 @@ max_size:124k;
 404:404.html;
 {/ll}
 default:index.html;
-cgi:php,php_cgi;
+cgi:.php,/elpatho;
 directory_listing:true;
 accepted:GET,POST;
-path:/Users/zmeribaa/Desktop/Webo-Servo/static_html;
+path:/Users/atabout/Desktop/Webo-Servo/static_html;
 redirection:WTF IS THIS;
 upload_store:/tmp/uploads;
 {/}
 default:index.html;
-cgi:php,php_cgi;
+cgi:.php,/elpatho;
 directory_listing:true;
 accepted:GET,POST;
-path:/Users/zmeribaa/Desktop/Webo-Servo/static_html;
+path:/Users/atabout/Desktop/Webo-Servo/static_html;
 redirection:WTF IS THIS;
 upload_store:/tmp/uploads;
 {route}
