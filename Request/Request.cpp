@@ -66,11 +66,11 @@ Request::Request(std::string rt)
 	pos = keys["path"].find("?");
 	if (pos != std::string::npos)
 	{
-		req._url = keys["path"].substr(0, pos);
-		req._query = keys["path"].substr(pos + 1, keys["path"].size() - 1);
+		req.keys["url"] = keys["path"].substr(0, pos);
+		req.keys["query"] = keys["path"].substr(pos + 1, keys["path"].size() - 1);
 	}
 	else
-		req._url = keys["path"];
+		req.keys["url"] = keys["path"];
     std::cout << "Request body unchunked << " << keys["body"] << ">>" << std::endl;
 }
 

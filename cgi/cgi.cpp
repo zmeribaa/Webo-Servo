@@ -30,10 +30,12 @@ void cgi::env()
 	// There will always be a reqtype; so no need to check here. But a check might be done getKey level either throw an exception ot check if empty()
 	if (reqtype == "GET")
 	{
-		/*int s = reqtype.length();
-		std::string c_size = toString(s);
-		if (reqtype._query.size() != 0)
-			setenv("CONTENT_LENGTH", c_size.c_str(), 1);*/
+		std::string query = _req.getKey("query");	
+		if (query.size() != 0)
+		{
+			std::string c_size = std::to_string(query.length());
+			setenv("CONTENT_LENGTH", c_size.c_str(), 1);
+		}		
 		setenv("CONTENT_TYPE", "application/x-www-form-urlencoded", 1);
 	}
 	else if (reqtype == "POST")
@@ -48,9 +50,9 @@ void cgi::env()
 			setenv("CONTENT_LENGTH", content_length.c_str(), 1);
 	}
 	setenv("GATEWAY_INTERFACE", "CGI/1.1", 1);
-	//setenv("QUERY_STRING", _req._query.c_str(), 1);
+	setenv("QUERY_STRING", _req.getKey("query").c_str(), 1);
 	setenv("REQUEST_METHOD", reqtype.c_str(), 1);
-	setenv("SCRIPT_FILENAME", _file.c_str(), 1);
+	setenv("SCRIPT_FILENAME", _file.c_str(), 1); // Parse file on request level
 	//setenv("SERVER_SOFTWARE", /*same as the server description*/, 1);
 	setenv("SERVER_PROTOCOL", "HTTP/1.1", 1);
 	setenv("REDIRECT_STATUS", "true", 1);

@@ -19,8 +19,6 @@ class Request {
         std::string htmlHeaders();
         std::string getKey(std::string key);
         //~Request();
-		std::string _url;
-		std::string _query;
     private:
         std::unordered_map<std::string, std::string> keys;
 
