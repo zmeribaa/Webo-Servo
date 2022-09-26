@@ -194,6 +194,43 @@ void Response::setMetaData(Request request, Server server)
     }
 }
 
+void    Response::serveCgi(Request request)
+{
+    //std::string reqtype = _req.getKey("reqtype");
+
+	// There will always be a reqtype; so no need to check here. But a check might be done getKey level either throw an exception ot check if empty()
+	if (request.getKey("reqtype") == "GET")
+	{
+		std::string query = keys["query"];	
+		if (query.size() != 0)
+		{
+			std::string c_size = std::to_string(keys["query"].length());
+			setenv("CONTENT_LENGTH", c_size.c_str(), 1);
+		}		
+		setenv("CONTENT_TYPE", "application/x-www-form-urlencoded", 1);
+	}
+	else if (request.getKey("reqtype") == "POST")
+	{
+		std::string content_type = request.getKey("Content-Type");
+		if (!(content_type.empty()))
+			setenv("CONTENT_TYPE", content_type.c_str(), 1);
+		else
+			setenv("CONTENT_TYPE", "application/x-www-form-urlencoded", 1);
+		std::string content_length = request.getKey("Content-Length");
+		if (!(content_length.empty()))
+			setenv("CONTENT_LENGTH", content_length.c_str(), 1);
+	}
+    
+	setenv("GATEWAY_INTERFACE", "CGI/1.1", 1);
+	setenv("QUERY_STRING", keys["query"].c_str(), 1);
+	setenv("REQUEST_METHOD", reqtype.c_str(), 1);
+	setenv("SCRIPT_FILENAME", keys["full_file_path"], 1); // Parse file on request level
+	//setenv("SERVER_SOFTWARE", /*same as the server description*/, 1);
+	setenv("SERVER_PROTOCOL", "HTTP/1.1", 1);
+	setenv("REDIRECT_STATUS", "true", 1);
+}
+
+
 Response::Response(Request request, Server server)
 {
     setContentTypes();
