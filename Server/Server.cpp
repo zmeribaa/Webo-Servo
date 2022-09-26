@@ -73,6 +73,7 @@ void Server::run()
 					close_conn = TRUE;
 					if (close_conn)
 					{
+						request.debug();
 						close(i);
 						FD_CLR(i, &backup_read);
 						close_conn = FALSE;

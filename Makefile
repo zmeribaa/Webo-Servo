@@ -1,5 +1,5 @@
 NAME = Webserv.out
-SRC = Webserv/Webserv.cpp Location/Location.cpp Server/Server.cpp Multiplexing/Multiplexing.cpp Request/Request.cpp Response/Response.cpp
+SRC = Webserv/Webserv.cpp Location/Location.cpp Server/Server.cpp Multiplexing/Multiplexing.cpp Request/Request.cpp Response/Response.cpp cgi/cgi.cpp
 HEADER = 
 CC = c++ 
 OBJ = $(SRC:.cpp=.o)

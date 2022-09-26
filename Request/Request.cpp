@@ -8,11 +8,11 @@ Request::Request()
 Request::Request(std::string rt)
 {
     std::stringstream to_stream(rt);
-
+	std::vector<std::string> cgi_line;
     std::string line;
     std::getline(to_stream, line);
     line.resize(line.size() - 1);
-
+	Request req;
     std::string::size_type pos = 0;
     std::string::size_type prev = 0;
 
@@ -63,7 +63,14 @@ Request::Request(std::string rt)
         keys["Transfer-Encoding"] = "";
         keys["Content-Length"] = length; // Later check if this is the right content size
     }
-
+	pos = keys["path"].find("?");
+	if (pos != std::string::npos)
+	{
+		req._url = keys["path"].substr(0, pos);
+		req._query = keys["path"].substr(pos + 1, keys["path"].size() - 1);
+	}
+	else
+		req._url = keys["path"];
     std::cout << "Request body unchunked << " << keys["body"] << ">>" << std::endl;
 }
 
@@ -92,11 +99,11 @@ void Request::debug()
 {
     // To reuse later on
 
-    /*std::unordered_map<std::string, std::string>::iterator it = keys.begin();
+    std::unordered_map<std::string, std::string>::iterator it = keys.begin();
 
     while(it != keys.end())
     {
         std::cout << it->first << " :: " << it->second<<std::endl;
         it++;
-    }*/
+    }
 }

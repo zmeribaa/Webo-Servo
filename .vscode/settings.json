@@ -72,6 +72,8 @@
 		"bit": "cpp",
 		"functional": "cpp",
 		"iterator": "cpp",
-		"utility": "cpp"
+		"utility": "cpp",
+		"array": "cpp",
+		"complex": "cpp"
 	}
 }
