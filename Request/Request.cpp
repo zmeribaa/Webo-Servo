@@ -76,7 +76,19 @@ Request::Request(std::string rt)
 
 std::string Request::getKey(std::string key)
 {
-    return (keys[key]);
+    std::unordered_map<std::string, std::string>::iterator it = keys.begin();
+    std::string searchedKey;
+
+    while (it != keys.end())
+    {
+        if (it->first == key)
+        {
+            searchedKey = it->second;
+            break;
+        }
+        it++;
+    }
+    return (searchedKey);
 }
 
 // Return a string of headers to print out on an HTML page
