@@ -154,13 +154,30 @@ Response::Response(Request request, Server server)
                     else
                         full_path += "/index.html";
                     if (stat(full_path.c_str(), &s) == 0)
-                        serveStaticContent(full_path);
+                    {
+                        int has_cgi = 0;
+                        if (has_cgi == 1)
+                        {
+                            // CGI SHIT happens in here
+                        }
+                        else
+                            serveStaticContent(full_path);
+                    }   
                     else
                         buildError("404");
                 }
                 }
                 else
-                    serveStaticContent(full_path);
+                {
+                    int has_cgi = 0;
+                    if (has_cgi == 1)
+                    {
+                        // CGI SHIT happens in here
+                    }
+                    else
+                        serveStaticContent(full_path);
+                }
+                    
             }
     }
 }
