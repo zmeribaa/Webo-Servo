@@ -12,7 +12,7 @@ Request::Request(std::string rt)
     std::string line;
     std::getline(to_stream, line);
     line.resize(line.size() - 1);
-	Request req;
+	//Request req;
     std::string::size_type pos = 0;
     std::string::size_type prev = 0;
 
@@ -66,11 +66,11 @@ Request::Request(std::string rt)
 	pos = keys["path"].find("?");
 	if (pos != std::string::npos)
 	{
-		req.keys["url"] = keys["path"].substr(0, pos);
-		req.keys["query"] = keys["path"].substr(pos + 1, keys["path"].size() - 1);
+		keys["url"] = keys["path"].substr(0, pos);
+		keys["query"] = keys["path"].substr(pos + 1, keys["path"].size() - 1);
 	}
 	else
-		req.keys["url"] = keys["path"];
+		keys["url"] = keys["path"];
     std::cout << "Request body unchunked << " << keys["body"] << ">>" << std::endl;
 }
 
