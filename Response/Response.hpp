@@ -6,7 +6,7 @@
 /*   By: zmeribaa <zmeribaa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/17 14:26:42 by zmeribaa          #+#    #+#             */
-/*   Updated: 2022/09/27 01:44:41 by zmeribaa         ###   ########.fr       */
+/*   Updated: 2022/09/27 04:28:26 by zmeribaa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ class Response {
 		void buildError(std::string error_type);
 		void fullPathBuilder(std::string url, Location location);
 		void setMetaData(Request request, Server server);
-		void    serveCgi(Request request);
+		void serveCgi(Request request);
 
 	private:
         std::unordered_map<std::string, std::string> keys;

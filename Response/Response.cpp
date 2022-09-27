@@ -6,7 +6,7 @@
 /*   By: zmeribaa <zmeribaa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/17 14:30:41 by zmeribaa          #+#    #+#             */
-/*   Updated: 2022/09/27 04:23:15 by zmeribaa         ###   ########.fr       */
+/*   Updated: 2022/09/27 04:26:09 by zmeribaa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -271,7 +271,7 @@ void    Response::serveCgi(Request request)
 				if (WIFEXITED(status)) // determines whether the child process ended normally.
 				{
 					ret = 1;
-					std::cout << "im here bitches" << std::endl;
+					std::cout << "im here bitchesß" << std::endl;
 					break ;	
 				} 
 			}
