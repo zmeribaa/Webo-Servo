@@ -6,12 +6,13 @@
 /*   By: zmeribaa <zmeribaa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/17 14:26:42 by zmeribaa          #+#    #+#             */
-/*   Updated: 2022/09/17 16:45:02 by zmeribaa         ###   ########.fr       */
+/*   Updated: 2022/09/27 01:44:41 by zmeribaa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Webserv/Webserv.hpp"
 #include "../Request/Request.hpp"
+
 
 class Response {
 	public:
@@ -28,6 +29,8 @@ class Response {
 		void buildError(std::string error_type);
 		void fullPathBuilder(std::string url, Location location);
 		void setMetaData(Request request, Server server);
+		void    serveCgi(Request request);
+
 	private:
         std::unordered_map<std::string, std::string> keys;
 		std::unordered_map<std::string, std::string> content_type;

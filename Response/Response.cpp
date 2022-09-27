@@ -6,12 +6,19 @@
 /*   By: zmeribaa <zmeribaa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/17 14:30:41 by zmeribaa          #+#    #+#             */
-/*   Updated: 2022/09/17 15:09:51 by zmeribaa         ###   ########.fr       */
+/*   Updated: 2022/09/27 04:23:15 by zmeribaa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 #include <sys/stat.h>
+#include <stdlib.h>
+#include <iostream>
+#include <string>
+#include <filesystem>
+#include <unistd.h>
+
+extern char** environ;
 
 Response::Response(void)
 {
@@ -115,6 +122,14 @@ Response::Response(std::string version, std::string code, std::string phrase)
 
 
 // Path: /test/meow.php?wewe=meow
+std::string getcurrdirectory()
+{
+	char tmp[256];
+    getcwd(tmp, 256);
+	
+	std::string currp(tmp);
+	return currp;
+}
 
 void Response::fullPathBuilder(std::string url, Location location)
 {
@@ -197,7 +212,10 @@ void Response::setMetaData(Request request, Server server)
 void    Response::serveCgi(Request request)
 {
     //std::string reqtype = _req.getKey("reqtype");
-
+	pid_t pid;
+	int ret = 0;
+	int fd = open("/cgi/hello", O_RDWR | O_CREAT, 0777);
+	int fbody = open("/cgi/body", O_RDWR | O_CREAT, 0777);
 	// There will always be a reqtype; so no need to check here. But a check might be done getKey level either throw an exception ot check if empty()
 	if (request.getKey("reqtype") == "GET")
 	{
@@ -223,19 +241,75 @@ void    Response::serveCgi(Request request)
     
 	setenv("GATEWAY_INTERFACE", "CGI/1.1", 1);
 	setenv("QUERY_STRING", keys["query"].c_str(), 1);
-	setenv("REQUEST_METHOD", reqtype.c_str(), 1);
-	setenv("SCRIPT_FILENAME", keys["full_file_path"], 1); // Parse file on request level
-	//setenv("SERVER_SOFTWARE", /*same as the server description*/, 1);
+	setenv("REQUEST_METHOD", request.getKey("reqtype").c_str(), 1);
+	setenv("SCRIPT_FILENAME", keys["full_file_path"].c_str(), 1); // Parse file on request level
+	setenv("SERVER_SOFTWARE", "TaboutZmer", 1);
 	setenv("SERVER_PROTOCOL", "HTTP/1.1", 1);
 	setenv("REDIRECT_STATUS", "true", 1);
+	pid = fork();
+	int status = 0;
+	if (pid == 0)
+	{
+		if (request.getKey("reqtype") == "POST")
+			dup2(fd, 0);
+		else
+			dup2(fbody, 0);
+		dup2(fbody, 1);
+		char *args[3];
+		args[0] = (char *)keys["cgi_path"].c_str();
+		args[1] = (char *)keys["full_file_path"].c_str();
+		args[2] = NULL;
+		execve(args[0], args, environ); // environ is a variable declared in unistd.h, and it keeps track of the environment variables during this running process.
+	}
+	else
+	{
+		time_t t = time(NULL);
+		while ((time(NULL) - t) < 5)
+		{
+			if (waitpid(pid, &status, WNOHANG) > 0)
+			{
+				if (WIFEXITED(status)) // determines whether the child process ended normally.
+				{
+					ret = 1;
+					std::cout << "im here bitches" << std::endl;
+					break ;	
+				} 
+			}
+		}
+	}
+	if (ret == 0)
+	{
+		std::cout << "help im stuck" << std::endl;
+		keys["code"] = "500";
+		close(fd);
+		close(fbody);
+		return ;
+	}
+	close(fd);
+	close(fbody);
+	int bytes;
+	char buffer[1024] = {0};
+	lseek(fd, 0, SEEK_SET);
+	std::string res;
+	while (bytes == read(fd, buffer, 1024) > 0)
+		res.append(buffer, bytes);
+	
+	std::remove("/cgi/hello");
+	std::remove("/cgi/body");
+	close(fd);
+	close(fbody);
+	std::cout << "Received shit: " << res << std::endl;
 }
 
 
 Response::Response(Request request, Server server)
 {
     setContentTypes();
-
-
+	int fd;
+	std::ostringstream header;
+	std::vector<std::string> myfiles;
+	std::string curr_d = getcurrdirectory();
+	
     if (request.getKey("reqtype") == "GET")
     {
         setMetaData(request, server);
@@ -245,7 +319,7 @@ Response::Response(Request request, Server server)
         }
         else if (!(keys["cgi_path"].empty()))
         {
-            // Handle CGI shit here
+           serveCgi(request);
         }
         else
         {
@@ -253,9 +327,45 @@ Response::Response(Request request, Server server)
         }
     } // GET request
     /*else if (request.getKey("reqtype") == "POST")
-        // POST
-    else if (request.getKey("reqtype") == "POST")
-        // DELETE*/
+        // POST*/
+    else if (request.getKey("reqtype") == "DELETE")
+	{
+		myfiles.push_back(curr_d + "/cgi/");
+		myfiles.push_back(curr_d + "/configs/");
+		myfiles.push_back(curr_d + "/ErrorPages/");
+		myfiles.push_back(curr_d + "/Location/");
+		myfiles.push_back(curr_d + "/Multiplexing/");
+		myfiles.push_back(curr_d + "/Request/");
+		myfiles.push_back(curr_d + "/Response/");
+		myfiles.push_back(curr_d + "/static_html/");
+		myfiles.push_back(curr_d + "/Webserv/");
+		myfiles.push_back(curr_d + "/Makefile");
+		for (std::vector<std::string>::iterator it = myfiles.begin(); it != myfiles.end(); it++)
+		{
+			if(keys["full_file_path"].find(*it) == 0)
+			{
+				buildError("403");
+				return ;
+			}
+		}
+		fd = open(keys["full_file_path"].c_str(), O_RDONLY);
+		if (fd < 0)
+		{
+			if (errno == EACCES)
+				buildError("403");
+			close(fd);
+			return ;
+		}
+		else
+		{
+			close(fd);
+			keys["code"] = "204";
+			keys["phrase"] = "No Content";
+			keys["version"] = "HTTP/1.1";
+			keys["body"] = "";
+		}
+		std::remove(keys["full_file_path"].c_str());
+	}
 }
 
 
