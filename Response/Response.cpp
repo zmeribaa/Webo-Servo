@@ -214,7 +214,7 @@ void    Response::serveCgi(Request request)
     //std::string reqtype = _req.getKey("reqtype");
 	pid_t pid;
 	int ret = 0;
-	int fd = open("/cgi/hello", O_RDWR | O_CREAT, 0777);
+	int fd = open("/tmp/hello", O_RDWR | O_CREAT, 0777);
 	int fbody = open("/cgi/body", O_RDWR | O_CREAT, 0777);
 	// There will always be a reqtype; so no need to check here. But a check might be done getKey level either throw an exception ot check if empty()
 	if (request.getKey("reqtype") == "GET")
@@ -250,11 +250,7 @@ void    Response::serveCgi(Request request)
 	int status = 0;
 	if (pid == 0)
 	{
-		if (request.getKey("reqtype") == "POST")
-			dup2(fd, 0);
-		else
-			dup2(fbody, 0);
-		dup2(fbody, 1);
+		dup2(fd, 1);
 		char *args[3];
 		args[0] = (char *)keys["cgi_path"].c_str();
 		args[1] = (char *)keys["full_file_path"].c_str();
@@ -263,41 +259,24 @@ void    Response::serveCgi(Request request)
 	}
 	else
 	{
-		time_t t = time(NULL);
-		while ((time(NULL) - t) < 5)
-		{
-			if (waitpid(pid, &status, WNOHANG) > 0)
-			{
-				if (WIFEXITED(status)) // determines whether the child process ended normally.
-				{
-					ret = 1;
-					std::cout << "im here bitchesß" << std::endl;
-					break ;	
-				} 
-			}
-		}
+		while (waitpid(-1, &status, WUNTRACED) > 0)
+			;
 	}
-	if (ret == 0)
-	{
-		std::cout << "help im stuck" << std::endl;
-		keys["code"] = "500";
-		close(fd);
-		close(fbody);
-		return ;
-	}
-	close(fd);
-	close(fbody);
-	int bytes;
 	char buffer[1024] = {0};
 	lseek(fd, 0, SEEK_SET);
 	std::string res;
-	while (bytes == read(fd, buffer, 1024) > 0)
-		res.append(buffer, bytes);
-	
-	std::remove("/cgi/hello");
-	std::remove("/cgi/body");
+	while (read(fd, buffer, 1024) > 0)
+        res += buffer;
 	close(fd);
 	close(fbody);
+	keys["version"] = "HTTP/1.1";
+    keys["code"] = "200";
+    keys["phrase"] = "OK";
+
+    keys["body"] = res;
+
+    appendHeader("Content-Length: " + std::to_string(keys["body"].length()));
+    appendHeader("Content-Type: text/html");
 	std::cout << "Received shit: " << res << std::endl;
 }
 
