@@ -13,6 +13,10 @@
 #include "../Webserv/Webserv.hpp"
 #include "../Request/Request.hpp"
 
+#include <sys/types.h>
+#include <dirent.h>
+#include <libgen.h>
+
 class Response {
 	public:
 		Response(void);

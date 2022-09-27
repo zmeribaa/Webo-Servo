@@ -29,7 +29,7 @@ void Server::run()
 	int close_conn = FALSE;
 	struct timeval	timeout;
 	timeout.tv_sec  = 0;
-	timeout.tv_usec = 10000;
+	timeout.tv_usec = 1000;
 	int addrlen = sizeof(address);
 
 		read_fds = backup_read;

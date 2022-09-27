@@ -205,8 +205,26 @@ void Response::serveDirectoryListing(Request request)
 
         keys["body"] = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\"><html> <head> <title>Index of " + request.getKey("path") + "</title> </head> <body><h1>Index of " + request.getKey("path") + "  </h1> <table> <tr><th valign=\"top\">&nbsp;</th><th>Name</th><th>Last modified</th><th>Size</th><th>Description</th></tr><tr><th colspan=\"5\"><hr></th></tr><tr><td valign=\"top\">&nbsp;</td>";
         
-        // Demo directory content to change later with real shit 
-        keys["body"] += "<td><a href=\"/wp-content/\">Parent Directory</a> </td><td>&nbsp;</td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"1994/\">1994/</a> </td><td align=\"right\">2015-04-03 12:53 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"1995/\">1995/</a> </td><td align=\"right\">2015-02-24 13:38 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"1996/\">1996/</a> </td><td align=\"right\">2015-02-17 08:14 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"1997/\">1997/</a> </td><td align=\"right\">2015-03-05 09:37 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"1999/\">1999/</a> </td><td align=\"right\">2015-03-05 13:29 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2009/\">2009/</a> </td><td align=\"right\">2015-04-21 11:20 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2010/\">2010/</a> </td><td align=\"right\">2015-06-19 07:29 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2011/\">2011/</a> </td><td align=\"right\">2015-04-27 11:56 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2012/\">2012/</a> </td><td align=\"right\">2015-04-22 09:12 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2013/\">2013/</a> </td><td align=\"right\">2015-04-21 13:23 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2014/\">2014/</a> </td><td align=\"right\">2015-02-22 19:58 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2015/\">2015/</a> </td><td align=\"right\">2015-11-30 22:03 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2016/\">2016/</a> </td><td align=\"right\">2016-11-30 22:35 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2017/\">2017/</a> </td><td align=\"right\">2017-12-01 02:42 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2018/\">2018/</a> </td><td align=\"right\">2018-12-01 04:04 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2019/\">2019/</a> </td><td align=\"right\">2019-12-01 07:43 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2020/\">2020/</a> </td><td align=\"right\">2020-11-30 22:33 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2021/\">2021/</a> </td><td align=\"right\">2021-11-12 11:16 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2022/\">2022/</a> </td><td align=\"right\">2022-08-31 22:06 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"gravity_forms/\">gravity_forms/</a> </td><td align=\"right\">2022-09-26 14:02 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"ptetmp/\">ptetmp/</a> </td><td align=\"right\">2022-09-21 15:08 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"tmp/\">tmp/</a> </td><td align=\"right\">2016-08-08 12:40 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"wpforms/\">wpforms/</a> </td><td align=\"right\">2022-09-16 10:26 </td><td align=\"right\"> - </td>";
+        // To do: Description, file sizes, and last modified
+
+        DIR *dir;
+        struct dirent *dp;
+
+        if ((dir = opendir (keys["full_file_path"].c_str())) == NULL)
+        {
+            perror ("Cannot open .");
+        }
+
+        while ((dp = readdir (dir)) != NULL)
+        {
+            std::string name(dp->d_name);
+            keys["body"] += "<tr> \
+            <td valign=\"top\">&nbsp;</td><td><a href=\"" + name + "\">"  + name + "</a> </td> \
+            <td align=\"right\">" + "2022" + "</td> \
+            <td align=\"right\">" + std::to_string(dp->d_reclen) + "</td> \
+            <td>Description</td> \
+            </tr>";
+        }
         
         keys["body"] += "<td>&nbsp;</td></tr><tr><th colspan=\"5\"><hr></th></tr></table></body></html>";
 
