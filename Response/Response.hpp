@@ -28,6 +28,7 @@ class Response {
 		void buildError(std::string error_type);
 		void fullPathBuilder(std::string url, Location location);
 		void setMetaData(Request request, Server server);
+		void serveDirectoryListing(Request request);
 	private:
         std::unordered_map<std::string, std::string> keys;
 		std::unordered_map<std::string, std::string> content_type;

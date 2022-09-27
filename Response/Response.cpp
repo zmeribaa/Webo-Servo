@@ -142,8 +142,8 @@ void Response::fullPathBuilder(std::string url, Location location)
     {
         if (s.st_mode & S_IFDIR)
         {
-            keys["is_directory"] = "true";
             std::string index = location.getKey("default").empty() ? location.getKey("default") : "index.html";
+            std::string path_backup = keys["full_file_path"];
             if (keys["full_file_path"].back() == '/')
                 keys["full_file_path"] += index;
             else
@@ -151,7 +151,10 @@ void Response::fullPathBuilder(std::string url, Location location)
             if (stat(keys["full_file_path"].c_str(), &s) != 0)
             {
                 if (location.getKey("directory_listing") == "true")
-                    keys["full_file_path"] = "auto_index.html"; //To handle later
+                {
+                    keys["directory_listing"] = "true";
+                    keys["full_file_path"] = path_backup;
+                }
                 else
                     keys["code"] = "403";
             }
@@ -194,7 +197,24 @@ void Response::setMetaData(Request request, Server server)
     }
 }
 
-void    Response::serveCgi(Request request)
+void Response::serveDirectoryListing(Request request)
+{
+        keys["version"] = "HTTP/1.1";
+        keys["code"] = "200";
+        keys["phrase"] = "Found";
+
+        keys["body"] = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\"><html> <head> <title>Index of " + request.getKey("path") + "</title> </head> <body><h1>Index of " + request.getKey("path") + "  </h1> <table> <tr><th valign=\"top\">&nbsp;</th><th>Name</th><th>Last modified</th><th>Size</th><th>Description</th></tr><tr><th colspan=\"5\"><hr></th></tr><tr><td valign=\"top\">&nbsp;</td>";
+        
+        // Demo directory content to change later with real shit 
+        keys["body"] += "<td><a href=\"/wp-content/\">Parent Directory</a> </td><td>&nbsp;</td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"1994/\">1994/</a> </td><td align=\"right\">2015-04-03 12:53 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"1995/\">1995/</a> </td><td align=\"right\">2015-02-24 13:38 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"1996/\">1996/</a> </td><td align=\"right\">2015-02-17 08:14 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"1997/\">1997/</a> </td><td align=\"right\">2015-03-05 09:37 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"1999/\">1999/</a> </td><td align=\"right\">2015-03-05 13:29 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2009/\">2009/</a> </td><td align=\"right\">2015-04-21 11:20 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2010/\">2010/</a> </td><td align=\"right\">2015-06-19 07:29 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2011/\">2011/</a> </td><td align=\"right\">2015-04-27 11:56 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2012/\">2012/</a> </td><td align=\"right\">2015-04-22 09:12 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2013/\">2013/</a> </td><td align=\"right\">2015-04-21 13:23 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2014/\">2014/</a> </td><td align=\"right\">2015-02-22 19:58 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2015/\">2015/</a> </td><td align=\"right\">2015-11-30 22:03 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2016/\">2016/</a> </td><td align=\"right\">2016-11-30 22:35 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2017/\">2017/</a> </td><td align=\"right\">2017-12-01 02:42 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2018/\">2018/</a> </td><td align=\"right\">2018-12-01 04:04 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2019/\">2019/</a> </td><td align=\"right\">2019-12-01 07:43 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2020/\">2020/</a> </td><td align=\"right\">2020-11-30 22:33 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2021/\">2021/</a> </td><td align=\"right\">2021-11-12 11:16 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"2022/\">2022/</a> </td><td align=\"right\">2022-08-31 22:06 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"gravity_forms/\">gravity_forms/</a> </td><td align=\"right\">2022-09-26 14:02 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"ptetmp/\">ptetmp/</a> </td><td align=\"right\">2022-09-21 15:08 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"tmp/\">tmp/</a> </td><td align=\"right\">2016-08-08 12:40 </td><td align=\"right\"> - </td><td>&nbsp;</td></tr><tr><td valign=\"top\">&nbsp;</td><td><a href=\"wpforms/\">wpforms/</a> </td><td align=\"right\">2022-09-16 10:26 </td><td align=\"right\"> - </td>";
+        
+        keys["body"] += "<td>&nbsp;</td></tr><tr><th colspan=\"5\"><hr></th></tr></table></body></html>";
+
+        appendHeader("Content-Length: " + std::to_string(keys["body"].length()));
+        appendHeader("Content-Type: text/html");
+}
+
+/*void    Response::serveCgi(Request request)
 {
     //std::string reqtype = _req.getKey("reqtype");
 
@@ -225,10 +245,10 @@ void    Response::serveCgi(Request request)
 	setenv("QUERY_STRING", keys["query"].c_str(), 1);
 	setenv("REQUEST_METHOD", reqtype.c_str(), 1);
 	setenv("SCRIPT_FILENAME", keys["full_file_path"], 1); // Parse file on request level
-	//setenv("SERVER_SOFTWARE", /*same as the server description*/, 1);
+	//setenv("SERVER_SOFTWARE", "LOLOLOLOLOL", 1);
 	setenv("SERVER_PROTOCOL", "HTTP/1.1", 1);
 	setenv("REDIRECT_STATUS", "true", 1);
-}
+}*/
 
 
 Response::Response(Request request, Server server)
@@ -239,7 +259,11 @@ Response::Response(Request request, Server server)
     if (request.getKey("reqtype") == "GET")
     {
         setMetaData(request, server);
-        if (!(keys["code"].empty()))
+        if (keys["directory_listing"] == "true")
+        {
+            serveDirectoryListing(request);
+        }
+        else if (!(keys["code"].empty()))
         {
             buildError(keys["code"]);
         }
