@@ -272,11 +272,21 @@ void    Response::serveCgi(Request request)
 	keys["version"] = "HTTP/1.1";
     keys["code"] = "200";
     keys["phrase"] = "OK";
+	
+	std::string::size_type pos;
+	std::ifstream response("/tmp/hello");
+	std::string line;
 
-    keys["body"] = res;
+    while (std::getline(response, line) && line.find(":") != std::string::npos)
+    {
+        appendHeader(line);
+    }
+    if ((pos = res.find("\r\n\r\n")) != std::string::npos) // has body check
+        keys["body"] = res.substr(pos + 4);
 
     appendHeader("Content-Length: " + std::to_string(keys["body"].length()));
-    appendHeader("Content-Type: text/html");
+    //appendHeader("Content-Type: text/html");
+	std::remove("/tmp/hello");
 	std::cout << "Received shit: " << res << std::endl;
 }
 
