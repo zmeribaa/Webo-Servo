@@ -6,7 +6,7 @@
 /*   By: zmeribaa <zmeribaa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/17 14:30:41 by zmeribaa          #+#    #+#             */
-/*   Updated: 2022/09/27 04:26:09 by zmeribaa         ###   ########.fr       */
+/*   Updated: 2022/09/27 22:04:52 by zmeribaa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -259,7 +259,7 @@ void    Response::serveCgi(Request request)
 	}
 	else
 	{
-		while (waitpid(-1, &status, WUNTRACED) > 0)
+		while (pid_t l = waitpid(-1, &status, WUNTRACED) > 0)
 			;
 	}
 	char buffer[1024] = {0};
@@ -302,6 +302,7 @@ Response::Response(Request request, Server server)
     if (request.getKey("reqtype") == "GET")
     {
         setMetaData(request, server);
+		std::cout << "Path is: " << keys["full_file_path"] << std::endl;
         if (!(keys["code"].empty()))
         {
             buildError(keys["code"]);

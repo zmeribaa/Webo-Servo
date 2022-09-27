@@ -12,7 +12,7 @@ Server::Server()
 
 void Server::run()
 {
-	Response response("HTTP/1.1", "200", "OK");
+	/*Response response("HTTP/1.1", "200", "OK");
 
 	std::ifstream t("ErrorPages/index.html");
 	std::stringstream _buffer;
@@ -30,70 +30,43 @@ void Server::run()
 	struct timeval	timeout;
 	timeout.tv_sec  = 0;
 	timeout.tv_usec = 1000;
-	int addrlen = sizeof(address);
+	int addrlen = sizeof(address);*/
 
-		read_fds = backup_read;
-		write_fds = backup_write;
-		ret = select(1024, &read_fds, &write_fds, NULL, &timeout);
-		if (ret < 0)
-		{
-			perror("In select");
-			exit(EXIT_FAILURE);
-		}
-		ret = 0;
-		for (int i = 0; i < 1022; i++)
-		{
-			if (FD_ISSET(i, &read_fds))
-			{			
-				if (i == server_fd)
-				{
-					new_fd = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
-					std::cout << "NEW_FD : " << new_fd << std::endl;
-					if(new_fd > 0)
-					{
-						fcntl(new_fd, F_SETFL, O_NONBLOCK);
-						FD_SET(new_fd, &backup_read);
-					}
-				}
-				else
-				{
-					char buffer[30000] = {0};
-        			int valread = recv(new_fd , buffer, 30000,0);
-					
-					// Too ugly, to refactor later
-					if (valread > 0)
-       				{
-						std::string rt(buffer);
-        			Request request(rt);
-					Response response(request, *this);
-
-					std::string res = response.build();
-
-					ret =  send(i , res.c_str(), res.length(), 0);
-					close_conn = TRUE;
-					if (close_conn)
-					{
-						//request.debug();
-						close(i);
-						FD_CLR(i, &backup_read);
-						close_conn = FALSE;
-					}
-					}
-				}
-			}
-			else if (FD_ISSET(i, &write_fds))
-			{
-				ret =  send(i , hello.c_str(), hello.length(), 0);
-				if (ret <= 0)
-				{
-					exit(EXIT_FAILURE);
-				}
-				FD_CLR(i, &backup_write);
-				close(i);
-				std::cout << "SEND_RET : " << i << "|" << ret << std::endl;
-			}
-		}
+		
 }
+
+
+
+int Server::getServerFd()
+{
+	return server_fd;
+}
+
+void Server::setServerFd(int fd)
+{
+	server_fd = fd;
+}
+
+void Server::setAddress(struct sockaddr_in address)
+{
+	address = address;
+}
+
+struct sockaddr_in Server::getAddress()
+{
+	return address;
+}
+
+socklen_t Server::getAddressLen()
+{
+	return address_len;
+}
+
+void Server::setAddressLen(socklen_t len)
+{
+	address_len = len;
+}
+
 
 void Server::debug()
 {
@@ -171,11 +144,16 @@ void Server::_socket()
         exit(EXIT_FAILURE);
     }
 
+
+
+
 	struct timeval	timeout;
 	timeout.tv_sec  = 1;
 	timeout.tv_usec = 0;
 	fcntl(server_fd, F_SETFL, O_NONBLOCK);
-	FD_SET(server_fd, &backup_read); //loop over all servers not just one
+
+
+	//FD_SET(server_fd, &backup_read); //loop over all servers not just one
 }
 
 

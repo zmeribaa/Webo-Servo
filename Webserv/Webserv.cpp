@@ -1,7 +1,8 @@
 #include "Webserv.hpp"
 #include "../Location/Location.hpp"
 #include "../Server/Server.hpp"
-
+#include "../Request/Request.hpp"
+#include "../Response/Response.hpp"
 
 /*
 
@@ -141,15 +142,137 @@ Webserv::~Webserv()
 
 }
 
-void Webserv::run()
+
+bool	Webserv::is_serverfd(int fd)
 {
-    while (1)
-    {
-        for (int i = 0; i < servers.size(); i++)
-            servers[i].run();
-    }
+	for (int i = 0; i < servers.size(); i++)
+	{
+		if (servers[i].getServerFd() == fd)
+			return (true);
+	}
+	return (false);
 }
 
+
+int	Webserv::getindex(int fd)
+{
+	for (int i = 0; i < servers.size(); i++)
+	{
+		if (servers[i].getServerFd() == fd)
+			return (i);
+	}
+	return (-1);
+}
+
+
+#define PRINTN(x) std::cout << x << std::endl;
+
+void Webserv::run()
+{
+	int new_fd;
+	int ret;
+	int close_conn = FALSE;
+	struct fd_set wset_master;
+	struct fd_set rset_master;
+	struct fd_set wset_working;
+	struct fd_set rset_working;
+	FD_ZERO(&wset_master);
+	FD_ZERO(&rset_master);
+	for (int i = 0; i < servers.size(); i++)
+	{
+		FD_SET(servers[i].getServerFd(), &rset_master);
+	}
+	while (1)
+	{
+		rset_working = rset_master;
+		wset_working = wset_master;
+		ret = select(FD_SETSIZE, &rset_working, &wset_working, NULL, NULL);
+		if (ret < 0)
+		{
+			std::cout << "Select error" << std::endl;
+			exit(1);
+		}
+		ret = 0;
+		for (int i = 0; i < FD_SETSIZE - 2; i++)
+		{
+			if (FD_ISSET(i, &rset_working))
+			{
+				//if (i == servers[i].getServerFd())
+				if(is_serverfd(i))
+				{
+					//new_fd = accept((servers[i].getServerFd(), (struct sockaddr *)(servers[i].getAddress()), (socklen_t*)(servers[i].getAddressLen()));
+					new_fd = accept(servers[this->getindex(i)].getServerFd(),NULL,NULL);
+
+					if (new_fd > 0)
+					{
+						fcntl(new_fd, F_SETFL, O_NONBLOCK);
+						FD_SET(new_fd, &rset_master);
+						PRINTN("New connection");
+					}
+				}
+				else 
+				{
+					PRINTN("New request");
+					char buf[1024];
+					int bytes_read = recv(i, buf, 1024, 0);
+					//PRINTN("Bytes read: " << buf);
+					if (bytes_read > 0)
+					{
+						std::string rt(buf);
+						Request request(rt);
+						//std::cout << rt << std::endl;
+						Response response(request, servers[getindex(i)]);
+						std::string res = response.build();
+
+						ret = send(i, res.c_str(), res.size(), 0);
+						close_conn = TRUE;
+						if (close_conn)
+						{
+							close(i);
+							FD_CLR(i, &rset_master);
+							close_conn = FALSE;
+						}
+					}
+				}
+		}
+		//else if (FD_ISSET(servers[i].getServerFd(), &wset_working))
+		else if (FD_ISSET(i, &wset_working))
+		{
+			PRINTN("Write");
+			ret = send(i, "Hello", 5, 0);
+			if (ret <= 0)
+			{
+				exit(EXIT_FAILURE);
+			}
+			FD_CLR(i, &wset_master);
+			close(i);
+		}
+	}
+
+}
+
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/
+
+}
 int main(int argc, char **argv)
 {
     if (argc != 2)
