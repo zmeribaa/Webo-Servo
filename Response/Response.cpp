@@ -316,8 +316,18 @@ Response::Response(Request request, Server server)
             serveStaticContent(keys["full_file_path"]);
         }
     } // GET request
-    /*else if (request.getKey("reqtype") == "POST")
-        // POST*/
+    else if (request.getKey("reqtype") == "POST")
+    {
+        
+        //setContentTypes();
+        setMetaData(request, server);
+        if (!(keys["code"].empty()))
+            buildError(keys["code"]);
+        else if (!(keys["cgi_path"].empty()))
+           serveCgi(request);
+        else
+            buildError("403");
+    }
     else if (request.getKey("reqtype") == "DELETE")
 	{
 		myfiles.push_back(curr_d + "/cgi/");
