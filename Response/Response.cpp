@@ -6,7 +6,7 @@
 /*   By: zmeribaa <zmeribaa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/17 14:30:41 by zmeribaa          #+#    #+#             */
-/*   Updated: 2022/09/27 22:04:52 by zmeribaa         ###   ########.fr       */
+/*   Updated: 2022/09/28 11:19:27 by zmeribaa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -377,12 +377,39 @@ Response::~Response(void)
 void Response::buildError(std::string error_type)
 {
     // To improve later
+		if (error_type == "400")
+		{
+			keys["version"] = "HTTP/1.1";
+			keys["code"] = "400";
+			keys["phrase"] = "Bad Request";
+			keys["body"] = "<html><head><title>400 Bad Request</title></head><body><h1>Bad Request</h1><p>Your browser sent a request that this server could not understand.</p></body></html>";
+		}
+		else if (error_type == "403")
+		{
+			keys["version"] = "HTTP/1.1";
+			keys["code"] = "403";
+			keys["phrase"] = "Forbidden";
+			keys["body"] = "<html><head><title>403 Forbidden</title></head><body><h1>Forbidden</h1><p>You don't have permission to access " + keys["full_file_path"] + " on this server.</p></body></html>";
+		}
+		else if (error_type == "404")
+		{
+			keys["version"] = "HTTP/1.1";
+			keys["code"] = "404";
+			keys["phrase"] = "Not Found";
+			keys["body"] = "<html><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL " + keys["full_file_path"] + " was not found on this server.</p></body></html>";
+		}
+		else if (error_type == "405")
+		{
+			keys["version"] = "HTTP/1.1";
+			keys["code"] = "405";
+			keys["phrase"] = "Method Not Allowed";
+			keys["body"] = "<html><head><title>405 Method Not Allowed</title></head><body><h1>Method Not Allowed</h1><p>The requested method " + keys["reqtype"] + " is not allowed for the URL " + keys["full_file_path"] + ".</p></body></html>";
+		}
+        // keys["version"] = "HTTP/1.1";
+        // keys["code"] = error_type;
+        // keys["phrase"] = "Not found";
 
-        keys["version"] = "HTTP/1.1";
-        keys["code"] = error_type;
-        keys["phrase"] = "Not found";
-
-        keys["body"] = "<h1> Shit is 404 </h1>";
+        // keys["body"] = "<h1> Shit is 404 </h1>";
 
         appendHeader("Content-Length: " + std::to_string(keys["body"].length()));
         appendHeader("Content-Type: text/html");
