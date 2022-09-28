@@ -5,9 +5,19 @@ Request::Request()
     //std::cout << "We've got a Request" << std::endl;
 }
 
-Request::Request(std::string rt)
+Request::Request(std::string buff)
 {
-    std::stringstream to_stream(rt);
+    raw = buff;
+}
+
+void    Request::append(std::string buff)
+{
+    raw += buff;
+}
+
+void    Request::parse()
+{
+    std::stringstream to_stream(raw);
 	std::vector<std::string> cgi_line;
     std::string line;
     std::getline(to_stream, line);
@@ -16,8 +26,8 @@ Request::Request(std::string rt)
     std::string::size_type pos = 0;
     std::string::size_type prev = 0;
 
-    if ((pos = rt.find("\r\n\r\n")) != std::string::npos) // has body check
-        keys["body"] = rt.substr(pos + 4);
+    if ((pos = raw.find("\r\n\r\n")) != std::string::npos) // has body check
+        keys["body"] = raw.substr(pos + 4);
 
     pos = line.find(' ', prev);
     keys["reqtype"] = line.substr(0, pos - prev);
@@ -110,4 +120,14 @@ void Request::debug()
         std::cout << it->first << " :: " << it->second<<std::endl;
         it++;
     }
+}
+
+void Request::setConnexionFd(int fd)
+{
+    connexion_fd = fd;
+}
+
+int Request::getConnexionFd()
+{
+    return connexion_fd;
 }

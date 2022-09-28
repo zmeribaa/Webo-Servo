@@ -262,7 +262,7 @@ void    Response::serveCgi(Request request)
 		while (pid_t l = waitpid(-1, &status, WUNTRACED) > 0)
 			;
 	}
-	char buffer[1024] = {0};
+	char buffer[1025] = {0};
 	lseek(fd, 0, SEEK_SET);
 	std::string res;
 	while (read(fd, buffer, 1024) > 0)

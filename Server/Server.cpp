@@ -34,8 +34,37 @@ void Server::run()
 
 		
 }
+int	Server::getRequestIndex(int fd)
+{
+	for (int i = 0; i < requests.size(); i++)
+	{
+		if (requests[i].getConnexionFd() == fd)
+		{	
+			return (i);
+		}
+	}
+	return (-1);
+}
+
+void Server::clean(int request_index, int fd)
+{
+	connexion_fds.erase(connexion_fds.begin() + getConnexFd(fd) - 1);
+	std::cout << "segfault here " << request_index << std::endl;
+	//requests.erase(requests.begin() + request_index - 1);
 
 
+}
+
+
+int Server::getConnexFd(int fd)
+{
+	for (int i = 0; i < connexion_fds.size(); i++)
+    {
+		if (connexion_fds[i] == fd)
+			return (i);
+    }
+	return -1;
+}
 
 int Server::getServerFd()
 {
@@ -162,6 +191,20 @@ void Server::setName(std::string name)
     _name = name; 
 }
 
+Request Server::getRequest(int i)
+{
+	return (requests[i]);
+}
+
+void Server::attach(int fd)
+{
+   connexion_fds.push_back(fd);
+}
+
+void Server::attach(Request request)
+{
+   requests.push_back(request);
+}
 
 void Server::attach(const Location location)
 {

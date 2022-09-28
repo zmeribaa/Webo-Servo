@@ -31,6 +31,7 @@
 
 
 #include "../Location/Location.hpp"
+#include "../Request/Request.hpp"
 
 // Create Server class with all nginx configuration parameters
 
@@ -40,6 +41,7 @@ class Server {
         //~Server();
         void attach(const Location location);
         bool attach(std::string pair);
+		void attach(int fd);
         void debug();
         void lessgo();
         void run();
@@ -52,10 +54,18 @@ class Server {
 		socklen_t	getAddressLen();
 		void setAddressLen(socklen_t address_len); 
         Location *findLocation(std::string path);
+		void setConnexionFd(int fd);
+void clean(int request_index, int fd);
+
+		int getConnexFd(int fd);
+		void attach(Request request);
+		Request getRequest(int i);
+		int	getRequestIndex(int fd);
     private:
         std::unordered_map<std::string, std::string> keys;
         std::string _name;
         std::vector<Location> locations;
+        std::vector<Request> requests;
         struct sockaddr_in address;
         int server_fd;
         struct fd_set backup_write;
@@ -63,6 +73,7 @@ class Server {
 	    struct fd_set read_fds;
 	    struct fd_set backup_read;
 		socklen_t address_len;
+		std::vector<int> connexion_fds;
 };
 
 #endif
