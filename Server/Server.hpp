@@ -42,6 +42,8 @@ class Server {
         void attach(const Location location);
         bool attach(std::string pair);
 		void attach(int fd);
+		void detach(int fd);
+
         void debug();
         void lessgo();
         void run();
@@ -61,6 +63,8 @@ void clean(int request_index, int fd);
 		void attach(Request request);
 		Request getRequest(int i);
 		int	getRequestIndex(int fd);
+		void	removeRequest(int fd);
+
     private:
         std::unordered_map<std::string, std::string> keys;
         std::string _name;

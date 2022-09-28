@@ -46,6 +46,14 @@ int	Server::getRequestIndex(int fd)
 	return (-1);
 }
 
+void	Server::removeRequest(int fd)
+{
+	int index = getRequestIndex(fd);
+	if (index != -1)
+		requests.erase(requests.begin() + index);
+}
+
+
 void Server::clean(int request_index, int fd)
 {
 	connexion_fds.erase(connexion_fds.begin() + getConnexFd(fd) - 1);
@@ -199,6 +207,11 @@ Request Server::getRequest(int i)
 void Server::attach(int fd)
 {
    connexion_fds.push_back(fd);
+}
+
+void Server::detach(int fd)
+{
+   connexion_fds.erase(std::find(connexion_fds.begin(), connexion_fds.end(), fd));
 }
 
 void Server::attach(Request request)

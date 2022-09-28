@@ -5,7 +5,7 @@ max_size:124k;
 404:404.html;
 {/ll}
 default:index.html;
-cgi:.php,/elpatho;
+cgi:.php,/Users/zmeribaa/.brew/bin/php;
 directory_listing:true;
 accepted:GET,POST;
 path:/Users/zmeribaa/Desktop/Webo-Servo/static_html;
@@ -13,7 +13,7 @@ redirection:WTF IS THIS;
 upload_store:/tmp/uploads;
 {/}
 default:index.html;
-cgi:.php,/elpatho;
+cgi:.php,/Users/zmeribaa/.brew/bin/php;
 directory_listing:true;
 accepted:GET,POST;
 path:/Users/zmeribaa/Desktop/Webo-Servo/static_html;

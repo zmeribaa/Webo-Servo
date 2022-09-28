@@ -227,7 +227,7 @@ void Webserv::run()
                     std::cout << "Got here "<< std::endl;
                     int server_index = getindexConnex(i); // Find the server with this connexion fd (Saved on a vector since there might be connexions each with a unique fd)
                     int request_index = servers[server_index].getRequestIndex(i); // Once we have our server we get which request is this. if its a -1 then its completely new. Else its already existing but not done yet
-
+					std::cerr << "--> "<<request_index << std::endl;
 					char buf[1025] = {0};
 					int bytes_read = recv(i, buf, 1024, 0);
 
@@ -267,6 +267,7 @@ void Webserv::run()
                         close(i);
                         std::cout << "I got here"  << std::endl;
 						FD_CLR(i, &rset_master);
+						servers[server_index].removeRequest(i);
                     }
 				}
 		}
