@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zmeribaa <zmeribaa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ziyad <ziyad@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/17 14:30:41 by zmeribaa          #+#    #+#             */
-/*   Updated: 2022/09/27 04:26:09 by zmeribaa         ###   ########.fr       */
+/*   Updated: 2022/09/27 08:22:43 by ziyad            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -215,7 +215,7 @@ void    Response::serveCgi(Request request)
 	pid_t pid;
 	int ret = 0;
 	int fd = open("/tmp/hello", O_RDWR | O_CREAT, 0777);
-	int fbody = open("/cgi/body", O_RDWR | O_CREAT, 0777);
+	int fbody = open("/tmp/body", O_RDWR | O_CREAT, 0777);
 	// There will always be a reqtype; so no need to check here. But a check might be done getKey level either throw an exception ot check if empty()
 	if (request.getKey("reqtype") == "GET")
 	{
