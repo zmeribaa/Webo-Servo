@@ -6,7 +6,7 @@
 /*   By: zmeribaa <zmeribaa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/17 14:25:14 by zmeribaa          #+#    #+#             */
-/*   Updated: 2022/09/21 19:42:39 by zmeribaa         ###   ########.fr       */
+/*   Updated: 2022/09/27 21:52:39 by zmeribaa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,9 @@ class Webserv {
         void attach(const Server server);
         void save_location(Server *server, std::istream &config_file_stream, std::string line);
         void save_server(std::istream &config_file_stream, std::string line);
+		bool	is_serverfd(int fd);
+		int		getindex(int fd);
+        int	getindexConnex(int fd);
 
     private:
         std::string config_file;

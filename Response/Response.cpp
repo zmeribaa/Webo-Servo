@@ -6,7 +6,7 @@
 /*   By: ziyad <ziyad@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/17 14:30:41 by zmeribaa          #+#    #+#             */
-/*   Updated: 2022/09/27 08:22:43 by ziyad            ###   ########.fr       */
+/*   Updated: 2022/11/02 16:15:53 by ziyad            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -259,10 +259,10 @@ void    Response::serveCgi(Request request)
 	}
 	else
 	{
-		while (waitpid(-1, &status, WUNTRACED) > 0)
+		while (pid_t l = waitpid(-1, &status, WUNTRACED) > 0)
 			;
 	}
-	char buffer[1024] = {0};
+	char buffer[1025] = {0};
 	lseek(fd, 0, SEEK_SET);
 	std::string res;
 	while (read(fd, buffer, 1024) > 0)
@@ -302,6 +302,7 @@ Response::Response(Request request, Server server)
     if (request.getKey("reqtype") == "GET")
     {
         setMetaData(request, server);
+		std::cout << "Path is: " << keys["full_file_path"] << std::endl;
         if (!(keys["code"].empty()))
         {
             buildError(keys["code"]);
@@ -315,8 +316,18 @@ Response::Response(Request request, Server server)
             serveStaticContent(keys["full_file_path"]);
         }
     } // GET request
-    /*else if (request.getKey("reqtype") == "POST")
-        // POST*/
+    else if (request.getKey("reqtype") == "POST")
+    {
+        
+        //setContentTypes();
+        setMetaData(request, server);
+        if (!(keys["code"].empty()))
+            buildError(keys["code"]);
+        else if (!(keys["cgi_path"].empty()))
+           serveCgi(request);
+        else
+            buildError("403");
+    }
     else if (request.getKey("reqtype") == "DELETE")
 	{
 		myfiles.push_back(curr_d + "/cgi/");
@@ -366,12 +377,39 @@ Response::~Response(void)
 void Response::buildError(std::string error_type)
 {
     // To improve later
+		if (error_type == "400")
+		{
+			keys["version"] = "HTTP/1.1";
+			keys["code"] = "400";
+			keys["phrase"] = "Bad Request";
+			keys["body"] = "<html><head><title>400 Bad Request</title></head><body><h1>Bad Request</h1><p>Your browser sent a request that this server could not understand.</p></body></html>";
+		}
+		else if (error_type == "403")
+		{
+			keys["version"] = "HTTP/1.1";
+			keys["code"] = "403";
+			keys["phrase"] = "Forbidden";
+			keys["body"] = "<html><head><title>403 Forbidden</title></head><body><h1>Forbidden</h1><p>You don't have permission to access " + keys["full_file_path"] + " on this server.</p></body></html>";
+		}
+		else if (error_type == "404")
+		{
+			keys["version"] = "HTTP/1.1";
+			keys["code"] = "404";
+			keys["phrase"] = "Not Found";
+			keys["body"] = "<html><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL " + keys["full_file_path"] + " was not found on this server.</p></body></html>";
+		}
+		else if (error_type == "405")
+		{
+			keys["version"] = "HTTP/1.1";
+			keys["code"] = "405";
+			keys["phrase"] = "Method Not Allowed";
+			keys["body"] = "<html><head><title>405 Method Not Allowed</title></head><body><h1>Method Not Allowed</h1><p>The requested method " + keys["reqtype"] + " is not allowed for the URL " + keys["full_file_path"] + ".</p></body></html>";
+		}
+        // keys["version"] = "HTTP/1.1";
+        // keys["code"] = error_type;
+        // keys["phrase"] = "Not found";
 
-        keys["version"] = "HTTP/1.1";
-        keys["code"] = error_type;
-        keys["phrase"] = "Not found";
-
-        keys["body"] = "<h1> Shit is 404 </h1>";
+        // keys["body"] = "<h1> Shit is 404 </h1>";
 
         appendHeader("Content-Length: " + std::to_string(keys["body"].length()));
         appendHeader("Content-Type: text/html");

@@ -12,7 +12,7 @@ Server::Server()
 
 void Server::run()
 {
-	Response response("HTTP/1.1", "200", "OK");
+	/*Response response("HTTP/1.1", "200", "OK");
 
 	std::ifstream t("ErrorPages/index.html");
 	std::stringstream _buffer;
@@ -30,70 +30,80 @@ void Server::run()
 	struct timeval	timeout;
 	timeout.tv_sec  = 0;
 	timeout.tv_usec = 1000;
-	int addrlen = sizeof(address);
+	int addrlen = sizeof(address);*/
 
-		read_fds = backup_read;
-		write_fds = backup_write;
-		ret = select(1024, &read_fds, &write_fds, NULL, &timeout);
-		if (ret < 0)
-		{
-			perror("In select");
-			exit(EXIT_FAILURE);
-		}
-		ret = 0;
-		for (int i = 0; i < 1022; i++)
-		{
-			if (FD_ISSET(i, &read_fds))
-			{			
-				if (i == server_fd)
-				{
-					new_fd = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
-					std::cout << "NEW_FD : " << new_fd << std::endl;
-					if(new_fd > 0)
-					{
-						fcntl(new_fd, F_SETFL, O_NONBLOCK);
-						FD_SET(new_fd, &backup_read);
-					}
-				}
-				else
-				{
-					char buffer[30000] = {0};
-        			int valread = recv(new_fd , buffer, 30000,0);
-					
-					// Too ugly, to refactor later
-					if (valread > 0)
-       				{
-						std::string rt(buffer);
-        			Request request(rt);
-					Response response(request, *this);
-
-					std::string res = response.build();
-
-					ret =  send(i , res.c_str(), res.length(), 0);
-					close_conn = TRUE;
-					if (close_conn)
-					{
-						//request.debug();
-						close(i);
-						FD_CLR(i, &backup_read);
-						close_conn = FALSE;
-					}
-					}
-				}
-			}
-			else if (FD_ISSET(i, &write_fds))
-			{
-				ret =  send(i , hello.c_str(), hello.length(), 0);
-				if (ret <= 0)
-				{
-					exit(EXIT_FAILURE);
-				}
-				FD_CLR(i, &backup_write);
-				close(i);
-				std::cout << "SEND_RET : " << i << "|" << ret << std::endl;
-			}
-		}
+		
 }
+int	Server::getRequestIndex(int fd)
+{
+	for (int i = 0; i < requests.size(); i++)
+	{
+		if (requests[i].getConnexionFd() == fd)
+		{	
+			return (i);
+		}
+	}
+	return (-1);
+}
+
+void	Server::removeRequest(int fd)
+{
+	int index = getRequestIndex(fd);
+	if (index != -1)
+		requests.erase(requests.begin() + index);
+}
+
+
+void Server::clean(int request_index, int fd)
+{
+	connexion_fds.erase(connexion_fds.begin() + getConnexFd(fd) - 1);
+	std::cout << "segfault here " << request_index << std::endl;
+	//requests.erase(requests.begin() + request_index - 1);
+
+
+}
+
+
+int Server::getConnexFd(int fd)
+{
+	for (int i = 0; i < connexion_fds.size(); i++)
+    {
+		if (connexion_fds[i] == fd)
+			return (i);
+    }
+	return -1;
+}
+
+int Server::getServerFd()
+{
+	return server_fd;
+}
+
+void Server::setServerFd(int fd)
+{
+	server_fd = fd;
+}
+
+void Server::setAddress(struct sockaddr_in address)
+{
+	address = address;
+}
+
+struct sockaddr_in Server::getAddress()
+{
+	return address;
+}
+
+socklen_t Server::getAddressLen()
+{
+	return address_len;
+}
+
+void Server::setAddressLen(socklen_t len)
+{
+	address_len = len;
+}
+
 
 void Server::debug()
 {
@@ -171,11 +181,16 @@ void Server::_socket()
         exit(EXIT_FAILURE);
     }
 
+
+
+
 	struct timeval	timeout;
 	timeout.tv_sec  = 1;
 	timeout.tv_usec = 0;
 	fcntl(server_fd, F_SETFL, O_NONBLOCK);
-	FD_SET(server_fd, &backup_read); //loop over all servers not just one
+
+
+	//FD_SET(server_fd, &backup_read); //loop over all servers not just one
 }
 
 
@@ -184,6 +199,25 @@ void Server::setName(std::string name)
     _name = name; 
 }
 
+Request Server::getRequest(int i)
+{
+	return (requests[i]);
+}
+
+void Server::attach(int fd)
+{
+   connexion_fds.push_back(fd);
+}
+
+void Server::detach(int fd)
+{
+   connexion_fds.erase(std::find(connexion_fds.begin(), connexion_fds.end(), fd));
+}
+
+void Server::attach(Request request)
+{
+   requests.push_back(request);
+}
 
 void Server::attach(const Location location)
 {

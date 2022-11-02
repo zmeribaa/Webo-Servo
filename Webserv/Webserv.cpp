@@ -1,7 +1,8 @@
 #include "Webserv.hpp"
 #include "../Location/Location.hpp"
 #include "../Server/Server.hpp"
-
+#include "../Request/Request.hpp"
+#include "../Response/Response.hpp"
 
 /*
 
@@ -141,15 +142,177 @@ Webserv::~Webserv()
 
 }
 
-void Webserv::run()
+
+bool	Webserv::is_serverfd(int fd)
 {
-    while (1)
-    {
-        for (int i = 0; i < servers.size(); i++)
-            servers[i].run();
-    }
+	for (int i = 0; i < servers.size(); i++)
+	{
+		if (servers[i].getServerFd() == fd)
+			return (true);
+	}
+	return (false);
 }
 
+int	Webserv::getindexConnex(int fd)
+{
+	for (int i = 0; i < servers.size(); i++)
+	{
+		if (servers[i].getConnexFd(fd) != -1)
+			return (i);
+	}
+	return (-1);
+}
+
+int	Webserv::getindex(int fd)
+{
+	for (int i = 0; i < servers.size(); i++)
+	{
+		if (servers[i].getServerFd() == fd)
+			return (i);
+	}
+	return (-1);
+}
+
+
+#define PRINTN(x) std::cout << x << std::endl;
+
+void Webserv::run()
+{
+	int new_fd;
+	int ret;
+	int close_conn = FALSE;
+	struct fd_set wset_master;
+	struct fd_set rset_master;
+	struct fd_set wset_working;
+	struct fd_set rset_working;
+	FD_ZERO(&wset_master);
+	FD_ZERO(&rset_master);
+    int connexionIndex;
+	for (int i = 0; i < servers.size(); i++)
+	{
+		FD_SET(servers[i].getServerFd(), &rset_master);
+        //FD_SET(servers[i].getServerFd(), &wset_master);
+	}
+	while (1)
+	{
+		rset_working = rset_master;
+		wset_working = wset_master;
+		ret = select(FD_SETSIZE, &rset_working, &wset_working, NULL, NULL);
+		if (ret < 0)
+		{
+			std::cout << "Select error" << std::endl;
+			exit(1);
+		}
+		ret = 0;
+		for (int i = 0; i < FD_SETSIZE - 2; i++)
+		{
+			if (FD_ISSET(i, &rset_working))
+			{
+				//if (i == servers[i].getServerFd())
+				if (is_serverfd(i))
+				{
+					//new_fd = accept((servers[i].getServerFd(), (struct sockaddr *)(servers[i].getAddress()), (socklen_t*)(servers[i].getAddressLen()));
+					new_fd = accept(servers[this->getindex(i)].getServerFd(),NULL,NULL);
+
+					if (new_fd > 0)
+					{
+                        servers[this->getindex(i)].attach(new_fd);
+						fcntl(new_fd, F_SETFL, O_NONBLOCK);
+						FD_SET(new_fd, &rset_master);
+						PRINTN("New connection");
+					}
+				}
+				else
+				{
+                    std::cout << "Got here "<< std::endl;
+                    int server_index = getindexConnex(i); // Find the server with this connexion fd (Saved on a vector since there might be connexions each with a unique fd)
+                    int request_index = servers[server_index].getRequestIndex(i); // Once we have our server we get which request is this. if its a -1 then its completely new. Else its already existing but not done yet
+					std::cerr << "--> "<<request_index << std::endl;
+					char buf[1025] = {0};
+					int bytes_read = recv(i, buf, 1024, 0);
+
+                    if ((request_index != -1))
+                    {
+                        std::cout << "here bitches" << std::endl;
+                        servers[server_index].getRequest(request_index).append(buf); 
+                    }
+                    else
+                    {
+                        Request request(buf);
+                        request.setConnexionFd(i);
+                        request.parse();
+                        servers[server_index].attach(request);
+                    }
+                    if (bytes_read == 0 || buf[1023] == 0)
+                    {
+                        // Once done reading. We set a new reading fd on the server 
+                        int server_index = getindexConnex(i); // Find the server with this connexion fd (Saved on a vector since there might be connexions each with a unique fd)
+                        std::cout << server_index << std::endl;
+                        int request_index = servers[server_index].getRequestIndex(i); // Once we have our server we get which request is this. if its a -1 then its completely new. Else its already existing but not done yet
+                        std::cout << request_index << std::endl;
+
+                        //std::cout << "got here 1" << std::endl;
+                        std::cout << "meow" << std::endl;
+
+                        servers[server_index].getRequest(request_index).parse();
+                       
+                        Response response(servers[server_index].getRequest(request_index), servers[server_index]);
+                        std::string result = response.build();
+                        ret = send(i, result.c_str(), result.length(), 0);
+
+                        // To do
+                        
+                        //servers[server_index].clean(request_index, i); //
+
+                        close(i);
+                        std::cout << "I got here"  << std::endl;
+						FD_CLR(i, &rset_master);
+						servers[server_index].removeRequest(i);
+                    }
+				}
+		}
+		//else if (FD_ISSET(servers[i].getServerFd(), &wset_working))
+		else if (FD_ISSET(i, &wset_working))
+		{
+            std::cout << "gokklkhlht here" << std::endl;
+            int server_index = getindexConnex(i); // Find the server with this connexion fd (Saved on a vector since there might be connexions each with a unique fd)
+            int request_index = servers[server_index].getRequestIndex(i); // Once we have our server we get which request is this. if its a -1 then its completely new. Else its already existing but not done yet
+			Response response(servers[server_index].getRequest(i), servers[server_index]);
+
+            ret = send(i, "Hillo", 5, 0);
+			if (ret <= 0)
+			{
+				exit(EXIT_FAILURE);
+			}
+			FD_CLR(i, &wset_master);
+			close(i);
+		}
+	}
+
+}
+
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/
+
+}
 int main(int argc, char **argv)
 {
     if (argc != 2)
